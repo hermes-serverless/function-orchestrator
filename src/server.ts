@@ -1,53 +1,38 @@
 import { Logger } from './utils/Logger'
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import morgan from 'morgan'
-import httpProxy from 'http-proxy'
-import { WatchersManager } from './resources/WatchersManager/WatchersManager'
-import axios from 'axios'
-
-const adresses = {
-  FunctionBuilder: 'http://function-builder:3001/',
-}
+import { authRouter } from './routes/auth'
+import { functionRouter } from './routes/function'
+import { runRouter } from './routes/run'
 
 const server = express()
-const proxy = httpProxy.createProxyServer()
 
 server.use(express.json())
 server.use(morgan('dev'))
 
-server.use('/deploy', async (req, res) => {
-  proxy.web(req, res, { target: adresses.FunctionBuilder + 'build/?function-watcher=true' })
-})
+server.use('/auth', authRouter)
+server.use('/functions', functionRouter)
+server.use('/run', runRouter)
 
-server.use('/build', async (req, res) => {
-  // proxy.web(req, res, { target: adresses.FunctionBuilder + 'build/?project=true' })
-  console.log('POXY')
-  proxy.web(req, res, { target: 'http://e2882818ee9250311615469ebcdb29ac:3000/' })
-})
-
-server.use('/run', async (req, res) => {
-  const { username, functionName, lang, gpuCapable } = req.query
-  await WatchersManager.run(
-    {
-      username,
-      functionName,
-      lang,
-      gpuCapable,
-    },
-    async (endpoint: string) => {
-      Logger.info(`Proxy to ${endpoint}`)
-      const data = await axios.post(endpoint)
-      console.log(data)
-      proxy.web(req, res, { target: endpoint })
+server.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (!err.getStatusCode) err.getStatusCode = () => 500
+  if (!err.getResponseObject) {
+    err.getResponseObject = () => {
+      return { error: 'InternalServerError', message: 'Something broke in the server' }
     }
-  )
+  }
+  Logger.error(`Error ${err.constructor.name}`, err)
+  res.status(err.getStatusCode()).send(err.getResponseObject())
 })
 
-server.use('/', (_, res) => {
-  res.status(404).send('Not found')
+server.use('/', (_: Request, res: Response) => {
+  res.status(404).send({
+    error: 'PageNotFound',
+    message: 'Page not found',
+  })
 })
 
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 server.listen(PORT, () => {
   Logger.info(`Server listening on port http://localhost:${PORT}`)
 })
