@@ -1,9 +1,7 @@
 import { Logger } from './utils/Logger'
 import express, { NextFunction, Request, Response } from 'express'
 import morgan from 'morgan'
-import { authRouter } from './routes/auth'
-import { functionRouter } from './routes/function'
-import { runRouter } from './routes/run'
+import { userRouter, authRouter } from './routes'
 
 const server = express()
 
@@ -11,8 +9,7 @@ server.use(express.json())
 server.use(morgan('dev'))
 
 server.use('/auth', authRouter)
-server.use('/functions', functionRouter)
-server.use('/run', runRouter)
+server.use('/user', userRouter)
 
 server.use((err: any, req: Request, res: Response, next: NextFunction) => {
   if (!err.getStatusCode) err.getStatusCode = () => 500
