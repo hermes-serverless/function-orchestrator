@@ -2,7 +2,7 @@ FROM docker:18.09
 
 RUN apk add --no-cache yarn nodejs
 
-ENV PORT 8080
+ENV PORT 3000
 EXPOSE ${PORT}
 
 ENV NODE_ENV=development
