@@ -1,3 +1,4 @@
+import { UsernameExistsObj } from './../typings.d'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { User, UserForAuth, AuthResponse, DbManagerErrorResponse } from '../typings'
 import {
@@ -29,7 +30,16 @@ export class AuthDatasource {
     }
   }
 
-  static async register(newUser: UserForAuth): Promise<User> {
+  static async usernameExists(username: string): Promise<UsernameExistsObj> {
+    try {
+      const res = await this.axios.post(`/register/${username}`)
+      return res.data
+    } catch (errResponse) {
+      errorCheck(errResponse, [])
+    }
+  }
+
+  static async register(newUser: UserForAuth): Promise<AuthResponse> {
     try {
       const res = await this.axios.post('/register', newUser)
       return res.data
