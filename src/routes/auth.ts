@@ -46,7 +46,21 @@ const handleLoginUser = async (req: Request, res: Response, next: NextFunction) 
   }
 }
 
+const handleUserExistence = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (req.method == 'POST') {
+      const response = await AuthDatasource.usernameExists(req.params.username)
+      res.status(200).send(response)
+    } else {
+      res.status(400).send('This route only accepts POST requests')
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
 authRouter.all('/register', handleRegisterUser)
+authRouter.all('/register/:username', handleUserExistence)
 authRouter.all('/me', handleGetMe)
 authRouter.all('/login', handleLoginUser)
 
