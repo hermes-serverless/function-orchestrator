@@ -10,14 +10,26 @@ export interface DbManagerErrorResponse {
   detail?: DetailObject
 }
 
+export interface UsernameExistsObj {
+  username: string
+  exists: boolean
+}
+
 export interface AuthResponse {
   auth: boolean | null
-  token?: string
+  token: string
 }
 
 export interface User {
   id: number
   username: string
+}
+
+export interface UpdatedUser {
+  updatedUser: User
+}
+export interface DeletedUser {
+  deletedUser: User
 }
 
 export interface HermesFunctionProto {

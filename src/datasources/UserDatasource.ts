@@ -1,3 +1,4 @@
+import { DeletedUser, UpdatedUser } from './../typings'
 import axios, { AxiosInstance } from 'axios'
 import { User } from '../typings'
 import { ValidationError, errorCheck, createErrorToCheck, SimpleError } from './Errors'
@@ -10,7 +11,7 @@ export class UserDatasource {
     timeout: 1000,
   })
 
-  static async deleteUser(user: User, auth: string): Promise<User> {
+  static async deleteUser(user: User, auth: string): Promise<DeletedUser> {
     try {
       const res = await this.axios.delete(`/${user.username}`, {
         headers: { Authentication: auth },
@@ -22,7 +23,7 @@ export class UserDatasource {
     }
   }
 
-  static async updateUser(user: User, updatedUser: User, auth: string): Promise<User> {
+  static async updateUser(user: User, updatedUser: User, auth: string): Promise<UpdatedUser> {
     try {
       const res = await this.axios.put(`/${user.username}`, updatedUser, {
         headers: { Authentication: auth },
