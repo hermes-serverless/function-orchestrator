@@ -1,7 +1,7 @@
-import { DeletedUser, UpdatedUser } from './../typings'
 import axios, { AxiosInstance } from 'axios'
 import { User } from '../typings'
-import { ValidationError, errorCheck, createErrorToCheck, SimpleError } from './Errors'
+import { DeletedUser, UpdatedUser } from './../typings'
+import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
 
 const commonErrors = [createErrorToCheck('NoSuchUser', new SimpleError('NoSuchUser'))]
 

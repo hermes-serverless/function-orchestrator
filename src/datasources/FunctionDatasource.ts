@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
-import { User, HermesFunction, HermesFunctionProto } from '../typings'
-import { errorCheck, createErrorToCheck, SimpleError, ValidationError } from './Errors'
+import { HermesFunctionProto, User } from '../typings'
+import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
 
 const commonErrors = [
   createErrorToCheck('NoSuchUser', new SimpleError('NoSuchUser')),

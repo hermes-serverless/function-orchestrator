@@ -1,5 +1,5 @@
-import { InvalidRequestArguments } from './../../datasources/Errors'
 import { pick } from 'ramda'
+import { InvalidRequestArguments } from './../../datasources/Errors'
 
 export const pickKeys = (possibleKeys: string[], obj: object) => {
   return pick(possibleKeys, obj)

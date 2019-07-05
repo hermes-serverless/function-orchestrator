@@ -1,5 +1,5 @@
-import { Watcher } from './Watcher'
 import R from 'ramda'
+import { Watcher } from './Watcher'
 
 class Scheduler {
   arr: Watcher[]

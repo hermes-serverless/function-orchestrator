@@ -1,7 +1,7 @@
-import { Logger } from './utils/Logger'
 import express, { NextFunction, Request, Response } from 'express'
 import morgan from 'morgan'
-import { userRouter, authRouter } from './routes'
+import { authRouter, userRouter } from './routes'
+import { Logger } from './utils/Logger'
 
 const server = express()
 

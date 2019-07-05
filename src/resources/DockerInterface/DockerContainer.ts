@@ -1,6 +1,6 @@
+import { Logger } from '../../utils/Logger'
 import { Subprocess, SubprocessIO } from './../../utils/Subprocess'
 import { HostPortProvider } from './HostPortProvider'
-import { Logger } from '../../utils/Logger'
 
 interface DockerContainerOptions {
   imageName: string

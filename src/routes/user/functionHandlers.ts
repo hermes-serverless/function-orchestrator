@@ -1,9 +1,8 @@
-import { HermesFunctionProto } from './../../typings.d'
-import { Logger } from '../../utils/Logger'
-import { Response, NextFunction } from 'express'
-import { AuthenticatedReq } from '../../typings'
+import { NextFunction, Response } from 'express'
 import { FunctionDatasource } from '../../datasources'
-import { pickKeys, checkifBodyIsValid } from './utils'
+import { AuthenticatedReq } from '../../typings'
+import { HermesFunctionProto } from './../../typings.d'
+import { checkifBodyIsValid, pickKeys } from './utils'
 
 const requiredAttrs = [
   'functionName',
@@ -18,10 +17,10 @@ export class BaseFunctionHandler {
   public static handler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
     try {
       const ops = new OneFunctionHandler(req)
-      if (req.method == 'GET') {
+      if (req.method === 'GET') {
         const fn = await ops.get()
         res.status(200).send(fn)
-      } else if (req.method == 'DELETE') {
+      } else if (req.method === 'DELETE') {
         const deletedFn = await ops.del()
         res.status(200).send(deletedFn)
       } else {
@@ -60,10 +59,10 @@ export class AllFunctionsHandler extends BaseFunctionHandler {
   public static handler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
     try {
       const ops = new AllFunctionsHandler(req)
-      if (req.method == 'GET') {
+      if (req.method === 'GET') {
         const allFunctions = await ops.get()
         res.status(200).send(allFunctions)
-      } else if (req.method == 'POST') {
+      } else if (req.method === 'POST') {
         const newFunction = await ops.create()
         res.status(200).send(newFunction)
       } else {
@@ -86,13 +85,13 @@ export class OneFunctionHandler extends BaseFunctionHandler {
   public static handler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
     try {
       const ops = new OneFunctionHandler(req)
-      if (req.method == 'GET') {
+      if (req.method === 'GET') {
         const fn = await ops.get()
         res.status(200).send(fn)
-      } else if (req.method == 'DELETE') {
+      } else if (req.method === 'DELETE') {
         const deletedFn = await ops.del()
         res.status(200).send(deletedFn)
-      } else if (req.method == 'PUT') {
+      } else if (req.method === 'PUT') {
         const updatedFn = await ops.upd()
         res.status(200).send(updatedFn)
       } else {

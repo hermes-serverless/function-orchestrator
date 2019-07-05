@@ -1,6 +1,6 @@
-import { RunsManager } from './../../resources/RunsManager/index'
 import { NextFunction, Response } from 'express'
 import { AuthenticatedReq } from '../../typings'
+import { RunsManager } from './../../resources/RunsManager/index'
 
 export const newRunHandler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
   try {

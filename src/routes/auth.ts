@@ -1,5 +1,4 @@
-import { Logger } from './../utils/Logger'
-import { Router, Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response, Router } from 'express'
 import { AuthDatasource } from '../datasources/AuthDatasource'
 import { AuthenticationError } from '../datasources/Errors'
 
@@ -7,7 +6,7 @@ const authRouter = Router()
 
 const handleRegisterUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.method == 'POST') {
+    if (req.method === 'POST') {
       const newUser = await AuthDatasource.register(req.body)
       res.status(200).send(newUser)
     } else {
@@ -20,9 +19,10 @@ const handleRegisterUser = async (req: Request, res: Response, next: NextFunctio
 
 const handleGetMe = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.method == 'GET') {
-      if (!req.headers['authorization'])
+    if (req.method === 'GET') {
+      if (!req.headers['authorization']) {
         throw new AuthenticationError('Missing Authorization header')
+      }
       const me = await AuthDatasource.getMe(req.headers['authorization'])
       res.status(200).send(me)
     } else {
@@ -35,7 +35,7 @@ const handleGetMe = async (req: Request, res: Response, next: NextFunction) => {
 
 const handleLoginUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.method == 'POST') {
+    if (req.method === 'POST') {
       const token = await AuthDatasource.login(req.body)
       res.status(200).send(token)
     } else {
@@ -48,7 +48,7 @@ const handleLoginUser = async (req: Request, res: Response, next: NextFunction) 
 
 const handleUserExistence = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.method == 'POST') {
+    if (req.method === 'POST') {
       const response = await AuthDatasource.usernameExists(req.params.username)
       res.status(200).send(response)
     } else {

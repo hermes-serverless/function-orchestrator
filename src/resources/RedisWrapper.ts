@@ -1,6 +1,6 @@
-import { Logger } from './../utils/Logger'
-import redis from 'redis'
 import R from 'ramda'
+import redis from 'redis'
+import { Logger } from './../utils/Logger'
 
 type Listener = (...args: any) => void
 interface ActiveSubscriptions {
@@ -61,7 +61,7 @@ if (process.env.NODE_ENV === 'development') {
     Logger.info('Redis client entered monitor mode')
   })
 
-  RedisWrapper.client.on('monitor', (time, args, raw_reply) => {
+  RedisWrapper.client.on('monitor', (time, args, rawReply) => {
     console.log(`[redis monitor] ${time}: ${args}`)
   })
 }

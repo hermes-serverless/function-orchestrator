@@ -1,8 +1,8 @@
-import { RunProto } from './../typings.d'
-import { PartialFunctionID, FunctionID } from './FunctionDatasource'
 import axios, { AxiosInstance } from 'axios'
-import { User, HermesFunction } from '../typings'
-import { errorCheck, createErrorToCheck, SimpleError, ValidationError } from './Errors'
+import { User } from '../typings'
+import { RunProto } from './../typings.d'
+import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
+import { FunctionID, PartialFunctionID } from './FunctionDatasource'
 
 const commonErrors = [
   createErrorToCheck('NoSuchUser', new SimpleError('NoSuchUser')),

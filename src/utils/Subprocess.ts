@@ -1,8 +1,8 @@
-import { QueueBuffer } from './CircularBuffer'
-import { Logger } from './Logger'
 import { ChildProcess, spawn } from 'child_process'
 import { Readable, Writable } from 'stream'
+import { QueueBuffer } from './CircularBuffer'
 import { Waiter } from './CustomPromises'
+import { Logger } from './Logger'
 
 export class MaxOutputSizeReached extends Error {
   constructor(maxSize: number) {

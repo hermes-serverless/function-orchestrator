@@ -1,4 +1,7 @@
 import { Request, Response } from 'express'
+import fs from 'fs'
+import path from 'path'
+import { Readable, Writable } from 'stream'
 import { RunDatasource } from '../../datasources'
 import { Logger } from '../../utils/Logger'
 import { FunctionDatasource } from './../../datasources/FunctionDatasource'
@@ -7,9 +10,6 @@ import { User } from './../../typings.d'
 import { Waiter } from './../../utils/CustomPromises'
 import { WatchersManager } from './WatchersManager'
 import { Watcher } from './WatchersManager/Watcher'
-import fs from 'fs'
-import path from 'path'
-import { Writable, Readable } from 'stream'
 
 interface UserInfo {
   user: User
@@ -60,6 +60,7 @@ export class Run {
           )
           this.data = createdRun[0]
           this.doneExecuting = this.finishedTransferingResult = false
+          Logger.info(this.addName(`Created run`))
         }
 
         this.id = this.data.id
@@ -99,20 +100,22 @@ export class Run {
     try {
       const { functions } = await FunctionDatasource.getFunction(user, this.fnID, token)
       const { id: functionID, imageName, gpuCapable } = functions[0]
+      Logger.info(this.addName(`Got function`))
       this.watcherResponsible = WatchersManager.getAvailableWatcher(functionID)
       if (this.watcherResponsible == null) {
+        Logger.info(this.addName(`Has to create watcher`))
         this.watcherResponsible = await WatchersManager.createWatcher({
           functionID,
           imageName,
           gpuCapable,
         })
-
-        this.donePromise = this.watcherResponsible.run(req, res, this.data.id)
-        this.donePromise.then(() => {
-          this.doneExecuting = true
-          this.transferResult()
-        })
       }
+      Logger.info(this.addName(`Got watcher`))
+      this.donePromise = this.watcherResponsible.run(req, res, this.data.id)
+      this.donePromise.then(() => {
+        this.doneExecuting = true
+        this.transferResult()
+      })
     } catch (err) {
       Logger.error(this.addName('Error starting run'), err)
       const { updatedRuns } = await RunDatasource.updateRun(

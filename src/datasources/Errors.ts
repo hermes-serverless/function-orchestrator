@@ -1,4 +1,4 @@
-import { AxiosResponse, AxiosError } from 'axios'
+import { AxiosError } from 'axios'
 import { DbManagerErrorResponse } from '../typings'
 
 export interface ErrorToCheck {
@@ -86,8 +86,8 @@ export class SimpleError extends RouteError {
 
   configure(dbResponse: DbManagerErrorResponse, statusCode: number) {
     this.setArgs({
-      message: dbResponse.message,
       statusCode,
+      message: dbResponse.message,
     })
   }
 }
@@ -103,8 +103,8 @@ export class AuthenticationError extends RouteError {
 
   configure(dbResponse: DbManagerErrorResponse, statusCode: number) {
     this.setArgs({
-      message: dbResponse.message,
       statusCode,
+      message: dbResponse.message,
     })
   }
 }
@@ -120,8 +120,8 @@ export class InvalidRequestArguments extends RouteError {
 
   configure(dbResponse: DbManagerErrorResponse, statusCode: number) {
     this.setArgs({
-      message: dbResponse.message,
       statusCode,
+      message: dbResponse.message,
     })
   }
 }
@@ -147,8 +147,8 @@ export class ValidationError extends RouteError {
 
   configure(dbResponse: DbManagerErrorResponse, statusCode: number) {
     this.setArgs({
-      detail: dbResponse.detail,
       statusCode,
+      detail: dbResponse.detail,
     })
   }
 }

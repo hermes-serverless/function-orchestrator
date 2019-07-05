@@ -1,7 +1,7 @@
-import { createLogger, format, transports } from 'winston'
-import { forEachObjIndexed } from 'ramda'
-import { TransformableInfo } from 'logform'
 import colors from 'colors/safe'
+import { TransformableInfo } from 'logform'
+import { forEachObjIndexed } from 'ramda'
+import { createLogger, format, transports } from 'winston'
 
 colors.enable()
 const myFormat = format.combine(

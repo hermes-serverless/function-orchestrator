@@ -3,9 +3,9 @@ import { AuthDatasource } from '../../datasources/AuthDatasource'
 import { AuthenticationError, RouteError } from '../../datasources/Errors'
 import { AuthenticatedReq } from '../../typings'
 import { AllFunctionsHandler, BaseFunctionHandler, OneFunctionHandler } from './functionHandlers'
-import { RunHandler, FunctionRunHandler } from './runHandlers'
+import { FunctionRunHandler, RunHandler } from './runHandlers'
 import { userHandler } from './userHandlers'
-import { newRunHandler, runStatusHandler, runResultHandler } from './watcherHandler'
+import { newRunHandler, runResultHandler, runStatusHandler } from './watcherHandler'
 
 const validateAuthentication = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
   try {
