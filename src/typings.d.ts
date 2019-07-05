@@ -37,13 +37,27 @@ export interface HermesFunctionProto {
   language: string
   gpuCapable: boolean
   scope: string
-  imageUrl: string
+  imageName: string
   functionVersion: string
 }
 
 export interface HermesFunction extends HermesFunctionProto {
   id: number
-  ownerUserId: number
+  ownerId: number
+}
+
+export interface RunProto {
+  startTime?: Date
+  endTime?: Date
+  status: string
+  outputPath?: string
+  watcherId?: string
+}
+
+export interface RunData extends RunProto {
+  id: number
+  functionId: number
+  userId: number
 }
 
 export interface UserUpdate {
