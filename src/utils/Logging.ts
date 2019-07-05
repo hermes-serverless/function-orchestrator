@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 const logHandler = (logger: any) => ({
   handler,
@@ -12,16 +12,16 @@ const logHandler = (logger: any) => ({
   try {
     await handler(logger, req, res, next)
     logger.info('Incoming request', {
+      handlerName,
       method: req.method,
       originalUrl: req.originalUrl,
-      handlerName,
       totalTime: `${Date.now() - start} ms`,
     })
   } catch (e) {
     logger.error('Incoming request', {
+      handlerName,
       method: req.method,
       originalUrl: req.originalUrl,
-      handlerName,
       totalTime: `${Date.now() - start} ms`,
       error: e,
     })

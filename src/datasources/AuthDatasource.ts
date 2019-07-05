@@ -1,13 +1,13 @@
+import axios, { AxiosInstance } from 'axios'
+import { AuthResponse, User, UserForAuth } from '../typings'
 import { UsernameExistsObj } from './../typings.d'
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import { User, UserForAuth, AuthResponse, DbManagerErrorResponse } from '../typings'
 import {
-  InvalidRequestArguments,
-  ValidationError,
-  errorCheck,
-  createErrorToCheck,
   AuthenticationError,
+  createErrorToCheck,
+  errorCheck,
+  InvalidRequestArguments,
   SimpleError,
+  ValidationError,
 } from './Errors'
 
 export class AuthDatasource {
@@ -53,10 +53,10 @@ export class AuthDatasource {
     }
   }
 
-  static async getMe(Authorization: string): Promise<User> {
+  static async getMe(authorization: string): Promise<User> {
     try {
       const res = await this.axios.get('/me', {
-        headers: { Authorization },
+        headers: { Authorization: authorization },
       })
       return res.data
     } catch (errResponse) {

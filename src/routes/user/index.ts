@@ -1,10 +1,11 @@
-import { Logger } from '../../utils/Logger'
-import { Router, Response, NextFunction } from 'express'
+import { NextFunction, Response, Router } from 'express'
 import { AuthDatasource } from '../../datasources/AuthDatasource'
-import { AuthenticationError } from '../../datasources/Errors'
+import { AuthenticationError, RouteError } from '../../datasources/Errors'
 import { AuthenticatedReq } from '../../typings'
+import { AllFunctionsHandler, BaseFunctionHandler, OneFunctionHandler } from './functionHandlers'
+import { FunctionRunHandler, RunHandler } from './runHandlers'
 import { userHandler } from './userHandlers'
-import { allFunctionsHandler, oneFunctionHandler, functionRunHandler } from './functionHandlers'
+import { newRunHandler, runResultHandler, runStatusHandler } from './watcherHandler'
 
 const validateAuthentication = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
   try {
@@ -20,12 +21,45 @@ const validateAuthentication = async (req: AuthenticatedReq, res: Response, next
   }
 }
 
+const checkAuthorization = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
+  try {
+    const { username } = req.params
+    const usernameRequesting = req.auth.user.username
+    if (username !== usernameRequesting) {
+      throw new RouteError({
+        errorName: 'Unauthorized',
+        message: `You, ${usernameRequesting}, is requesting restricted info from another possible user, ${username}`,
+        statusCode: 401,
+      })
+    }
+    next()
+  } catch (err) {
+    next(err)
+  }
+}
+
 const userRouter = Router()
 
 userRouter.use([validateAuthentication])
+userRouter.use('/:username', [checkAuthorization])
 userRouter.all('/:username/', [userHandler])
-userRouter.all('/:username/function/', [allFunctionsHandler])
-userRouter.all('/:username/function/:functionName', [oneFunctionHandler])
-userRouter.all('/:username/function/:functionName/run', [functionRunHandler])
+
+userRouter.all('/:username/function/', [AllFunctionsHandler.handler])
+userRouter.all('/:username/function/:functionName', [BaseFunctionHandler.handler])
+userRouter.all('/:username/function/:functionName/:functionVersion', [OneFunctionHandler.handler])
+
+userRouter.all('/:username/runs/', [RunHandler.handler])
+userRouter.all('/:username/runs/:runId', [RunHandler.handler])
+userRouter.all('/:username/function-runs/:functionOwner', [FunctionRunHandler.handler])
+userRouter.all('/:username/function-runs/:functionOwner/:functionName', [
+  FunctionRunHandler.handler,
+])
+userRouter.all('/:username/function-runs/:functionOwner/:functionName/:functionVersion', [
+  FunctionRunHandler.handler,
+])
+
+userRouter.all('/:username/run/:functionOwner/:functionName/:functionVersion', [newRunHandler])
+userRouter.all('/:username/run/:runId/status', [runStatusHandler])
+userRouter.all('/:username/run/:runId/result', [runResultHandler])
 
 export { userRouter }
