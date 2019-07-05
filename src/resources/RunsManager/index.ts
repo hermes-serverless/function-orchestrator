@@ -1,10 +1,8 @@
 import R from 'ramda'
+import { RUNS_CLEANUP_INTERVAL } from '../../limits/'
 import { User } from './../../typings.d'
 import { Logger } from './../../utils/Logger'
 import { Run, RunToCreate } from './Run'
-
-const HOUR = 3600 * 1000
-const CLEANUP_INTERVAL = 30 * 1000
 
 export class RunsManager {
   public static runs: Run[] = []
@@ -29,5 +27,5 @@ export class RunsManager {
     Logger.info(`[RunsManager] Cleanup runsLen: ${RunsManager.runs.length}`)
   }
 
-  public static cleanupTimer = setTimeout(RunsManager.cleanup, CLEANUP_INTERVAL)
+  public static cleanupTimer = setTimeout(RunsManager.cleanup, RUNS_CLEANUP_INTERVAL)
 }

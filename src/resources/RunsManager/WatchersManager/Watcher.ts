@@ -4,7 +4,7 @@ import { DockerContainer } from '../../DockerInterface/DockerContainer'
 import { Proxy } from '../../ProxyServer'
 import { RedisWrapper } from '../../RedisWrapper'
 import { WatcherDatasource } from './../../../datasources/WatcherDatasource'
-import { MAX_WATCHER_IDLE_TIME } from './../../../limits/limits'
+import { MAX_WATCHER_IDLE_TIME } from './../../../limits/'
 import { Waiter } from './../../../utils/CustomPromises'
 import { Logger } from './../../../utils/Logger'
 
