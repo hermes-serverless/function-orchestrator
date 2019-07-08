@@ -19,7 +19,7 @@ export interface FunctionIDWithOwner extends FunctionID {
 }
 
 export interface BaseRunObj {
-  id: string
+  id: number
   userId: string
   status: string
   startTime: Date | null
