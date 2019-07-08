@@ -19,7 +19,7 @@ export type RunToCreate = UserInfo & FunctionIDWithOwner
 export type ExistingRun = UserInfo & { id: string }
 
 export class Run {
-  public id: string
+  private id: string
   private user: User
   private data: BaseRunObj
   private fnID: FunctionIDWithOwner
@@ -63,7 +63,7 @@ export class Run {
           Logger.info(this.addName(`Created run`))
         }
 
-        this.id = this.data.id
+        this.id = this.data.id.toString()
         this.ready.resolve()
       } catch (err) {
         Logger.error(this.addName('Error on Run init'), err)
@@ -78,12 +78,19 @@ export class Run {
     return this.ready.finish()
   }
 
+  public getID = () => {
+    return this.id
+  }
+
   public getStatus = async () => {
     await this.ready.finish()
+
     if (!this.finishedTransferingResult) {
+      Logger.info(this.addName('Not finished transfering result, get status'))
       return this.watcherResponsible.getRunStatusStream(this.id)
     }
 
+    Logger.info(this.addName('Finished transfering result, get result'))
     return this.getResultReadStream()
   }
 
@@ -111,7 +118,7 @@ export class Run {
         })
       }
       Logger.info(this.addName(`Got watcher`))
-      this.donePromise = this.watcherResponsible.run(req, res, this.data.id)
+      this.donePromise = this.watcherResponsible.run(req, res, this.data.id.toString())
       this.donePromise.then(() => {
         this.doneExecuting = true
         this.transferResult()
@@ -120,7 +127,7 @@ export class Run {
       Logger.error(this.addName('Error starting run'), err)
       const { updatedRuns } = await RunDatasource.updateRun(
         user,
-        { id: this.data.id },
+        { id: this.data.id.toString() },
         { status: 'error' },
         token
       )

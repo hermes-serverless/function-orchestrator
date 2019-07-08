@@ -7,7 +7,7 @@ export const newRunHandler = async (req: AuthenticatedReq, res: Response, next: 
     if (req.method === 'POST') {
       const { functionOwner, functionName, functionVersion } = req.params
 
-      const run = RunsManager.createRun(
+      const run = await RunsManager.createRun(
         {
           functionOwner,
           functionName,
