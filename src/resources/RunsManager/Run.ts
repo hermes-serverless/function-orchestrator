@@ -60,6 +60,7 @@ export class Run {
           )
           this.data = createdRun[0]
           this.doneExecuting = this.finishedTransferingResult = false
+          this.id = this.data.id.toString()
           Logger.info(this.addName(`Created run`))
         }
 
