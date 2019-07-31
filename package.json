@@ -24,8 +24,11 @@
   },
   "homepage": "https://github.com/hermes-serverless/conductor#readme",
   "dependencies": {
+    "@hermes-serverless/circular-buffer": "^0.1.0",
+    "@hermes-serverless/custom-promises": "^0.1.0",
     "axios": "^0.18.0",
     "colors": "^1.3.3",
+    "execa": "^2.0.3",
     "express": "^4.17.0",
     "http-proxy": "^1.17.0",
     "morgan": "^1.9.1",
