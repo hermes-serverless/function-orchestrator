@@ -1,19 +1,10 @@
+import { DeletedRun, ResultInfo, ResultOutput, RunStatus } from '@hermes-serverless/api-types-function-watcher'
 import axios, { AxiosInstance } from 'axios'
-import { Readable } from 'stream'
+import queryString from 'querystring'
 import { Logger } from '../utils/Logger'
 import { createErrorToCheck, errorCheck, SimpleError } from './Errors'
 
 const commonErrors = [createErrorToCheck('NoSuchRun', new SimpleError('NoSuchRun'))]
-
-interface RunStatus {
-  status: string
-  runError?: string
-  startTime: string
-  endTime?: string
-  runningTime: string
-  out: string
-  err: string
-}
 
 export class WatcherDatasource {
   private axios: AxiosInstance
@@ -27,11 +18,9 @@ export class WatcherDatasource {
     })
   }
 
-  public async getRunStatusStream(runID: string): Promise<Readable> {
+  public async getRunStatus(runID: string, additionalFields?: string[]): Promise<RunStatus> {
     try {
-      const res = await this.axios.get(`/run/${runID}`, {
-        responseType: 'stream',
-      })
+      const res = await this.axios.get(`/run/${runID}?` + queryString.encode({ ...(additionalFields || []) }))
       return res.data
     } catch (errResponse) {
       const possibleErrors = [...commonErrors]
@@ -39,17 +28,7 @@ export class WatcherDatasource {
     }
   }
 
-  public async getRunStatus(runID: string): Promise<RunStatus> {
-    try {
-      const res = await this.axios.get(`/run/${runID}`)
-      return res.data
-    } catch (errResponse) {
-      const possibleErrors = [...commonErrors]
-      errorCheck(errResponse, possibleErrors)
-    }
-  }
-
-  public async deleteRun(runID: string): Promise<any> {
+  public async deleteRun(runID: string): Promise<DeletedRun> {
     try {
       const res = await this.axios.delete(`/run/${runID}`)
       return res.data
@@ -59,9 +38,19 @@ export class WatcherDatasource {
     }
   }
 
-  public async getResultStream(runID: string): Promise<Readable> {
+  public async getResultInfo(runID: string): Promise<ResultInfo> {
     try {
-      const res = await this.axios.get(`/run/${runID}/result`, {
+      const res = await this.axios.get(`/run/${runID}/result/info`)
+
+      return res.data
+    } catch (errResponse) {
+      throw errResponse
+    }
+  }
+
+  public async getResultOutput(runID: string): Promise<ResultOutput> {
+    try {
+      const res = await this.axios.get(`/run/${runID}/result/output`, {
         responseType: 'stream',
       })
 
