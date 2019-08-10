@@ -12,29 +12,29 @@ export class RunsManager {
   public static runs: Run[] = []
 
   public static createRun = async (runToCreate: RunToCreate, token: string) => {
-    const run = new Run(runToCreate, token)
-    await run.isReady()
+    const run = new Run()
+    await run.init(runToCreate, token)
     RunsManager.runs.push(run)
     return run
   }
 
   public static getRun = async (user: User, runID: string, token: string) => {
-    let run = R.find(el => el.getID() === runID, RunsManager.runs)
+    let run = R.find(el => el.runID === runID, RunsManager.runs)
 
     if (run == null) {
       Logger.info(addName(`Run id ${runID} not found. Try to get from db`))
-      run = new Run({ user, id: runID }, token)
-      await run.isReady()
+      run = new Run()
+      await run.init({ user, id: runID }, token)
       Logger.info(addName(`Run id ${runID} got from db`))
       RunsManager.runs.push(run)
     } else Logger.info(addName(`Got run ${runID} from array`))
     return run
   }
 
-  private static cleanup = () => {
-    RunsManager.runs = RunsManager.runs.filter(run => run.allFinished())
+  public static cleanup() {
+    RunsManager.runs = RunsManager.runs.filter(run => run.allFinished)
     Logger.info(`[RunsManager] Cleanup runsLen: ${RunsManager.runs.length}`)
   }
 
-  public static cleanupTimer = setTimeout(RunsManager.cleanup, RUNS_CLEANUP_INTERVAL)
+  public static cleanupTimer = setInterval(() => RunsManager.cleanup(), RUNS_CLEANUP_INTERVAL)
 }
