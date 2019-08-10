@@ -1,3 +1,9 @@
+import {
+  FunctionDeleteObj,
+  FunctionGetObj,
+  FunctionPostObj,
+  FunctionPutObj,
+} from '@hermes-serverless/api-types-db-manager/function'
 import axios, { AxiosInstance } from 'axios'
 import { HermesFunctionProto, User } from '../typings'
 import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
@@ -6,32 +12,6 @@ const commonErrors = [
   createErrorToCheck('NoSuchUser', new SimpleError('NoSuchUser')),
   createErrorToCheck('NoSuchFunction', new SimpleError('NoSuchFunction')),
 ]
-
-interface BaseFunctionObj {
-  id: string
-  ownerId: string
-  functionName: string
-  gpuCapable: boolean
-  scope: string
-  imageName: string
-  functionVersion: string
-}
-
-interface FunctionGetObj {
-  functions: BaseFunctionObj[]
-}
-
-interface FunctionDeleteObj {
-  deletedFunctions: BaseFunctionObj[]
-}
-
-interface FunctionPostObj {
-  newFunction: BaseFunctionObj[]
-}
-
-interface FunctionPutObj {
-  updatedFunctions: BaseFunctionObj[]
-}
 
 export interface PartialFunctionID {
   functionName?: string
@@ -46,8 +26,7 @@ export interface FunctionID {
 const createUrl = (username: string, partialFunctionID: PartialFunctionID) => {
   const { functionName, functionVersion } = partialFunctionID
   return (
-    `/${username}/function` +
-    (functionName ? `/${functionName}` + (functionVersion ? `/${functionVersion}` : '') : '')
+    `/${username}/function` + (functionName ? `/${functionName}` + (functionVersion ? `/${functionVersion}` : '') : '')
   )
 }
 
@@ -57,11 +36,7 @@ export class FunctionDatasource {
     timeout: 1000,
   })
 
-  static async getFunction(
-    user: User,
-    partialFunctionID: PartialFunctionID,
-    auth: string
-  ): Promise<FunctionGetObj> {
+  static async getFunction(user: User, partialFunctionID: PartialFunctionID, auth: string): Promise<FunctionGetObj> {
     try {
       const res = await this.axios.get(createUrl(user.username, partialFunctionID), {
         headers: { Authorization: auth },
@@ -89,11 +64,7 @@ export class FunctionDatasource {
     }
   }
 
-  static async createFunction(
-    user: User,
-    newFunction: HermesFunctionProto,
-    auth: string
-  ): Promise<FunctionPostObj> {
+  static async createFunction(user: User, newFunction: HermesFunctionProto, auth: string): Promise<FunctionPostObj> {
     try {
       const res = await this.axios.post(`/${user.username}/function/`, newFunction, {
         headers: { Authorization: auth },
