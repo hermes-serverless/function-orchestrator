@@ -9,7 +9,13 @@ interface ActiveSubscriptions {
 
 class NoSuchListener extends Error {
   constructor(listener: string) {
-    super(`No such Listener ${listener}`)
+    super(`No such listener ${listener}`)
+  }
+}
+
+class NoSuchChannel extends Error {
+  constructor(channel: string) {
+    super(`No such channel ${channel}`)
   }
 }
 
@@ -41,6 +47,7 @@ export class RedisWrapper {
   }
 
   public static removeSubscription(channelName: string, listenerID: string) {
+    if (R.isNil(this.subscriptions[channelName])) throw new NoSuchChannel(channelName)
     const listenerIndex = R.findIndex(el => el.id === listenerID, this.subscriptions[channelName])
 
     if (listenerIndex === -1) throw new NoSuchListener(listenerID)
