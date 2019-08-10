@@ -26,6 +26,7 @@
   "dependencies": {
     "@hermes-serverless/circular-buffer": "^0.1.0",
     "@hermes-serverless/custom-promises": "^0.1.0",
+    "@hermes-serverless/fs-utils": "^0.0.2",
     "axios": "^0.18.0",
     "colors": "^1.3.3",
     "double-ended-queue": "^2.1.0-0",

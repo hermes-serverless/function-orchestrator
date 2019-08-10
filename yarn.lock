@@ -158,6 +158,13 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
+"@hermes-serverless/api-types-db-manager@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@hermes-serverless/api-types-db-manager/-/api-types-db-manager-0.0.2.tgz#7041f9e4d9cc14b0e1d527964c8d2c9d61ea4278"
+  integrity sha512-AS0cC4q5NEV1oZ6lI4jcLjRW40Eu8W9O3WyTVroTXbDJuLsejrTLxv9esBUsM+7u0/rYqZaMZCKNsszu7bmdCw==
+  dependencies:
+    "@types/node" "^12.6.9"
+
 "@hermes-serverless/api-types-function-watcher@^0.0.1":
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/@hermes-serverless/api-types-function-watcher/-/api-types-function-watcher-0.0.1.tgz#958face4b72231307c0f4369c956dc7b516a6102"
@@ -176,6 +183,13 @@
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@hermes-serverless/custom-promises/-/custom-promises-0.1.0.tgz#7ca32a0d3a3eb98cffc3ffcc4e09d91e23488ddb"
   integrity sha512-87kSSjEZGTb98VBIc59KFm3KZa4Zln+ChNK8LbR7lEVt8/RtIZOHgp5wHrFMX03EchQH1Ru3805bU0BaxAA11Q==
+
+"@hermes-serverless/fs-utils@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@hermes-serverless/fs-utils/-/fs-utils-0.0.2.tgz#c953f6582f50ee35bc1e15bb20b96b3dffb572e1"
+  integrity sha512-CTn4m5RRjQpi1YmZgw7xh3RX7lHZh8HJcgQHqPKi04gatAmq6IeZCa/7Iu0Rr5ueUDuL7M4XHQYEZFreyEKUfA==
+  dependencies:
+    "@hermes-serverless/custom-promises" "^0.1.0"
 
 "@jest/console@^24.7.1":
   version "24.7.1"
