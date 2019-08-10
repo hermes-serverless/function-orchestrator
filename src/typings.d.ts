@@ -21,7 +21,7 @@ export interface AuthResponse {
 }
 
 export interface User {
-  id: number
+  id: string
   username: string
 }
 
