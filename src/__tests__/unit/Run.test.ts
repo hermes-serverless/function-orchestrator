@@ -6,16 +6,16 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { PassThrough } from 'stream'
-import { FunctionIDWithOwner } from '../datasources/RunDatasource'
-import { Run } from '../resources/RunsManager/Run'
-import { Logger } from '../utils/Logger'
-import { samples as functionSamples } from './fixtures/functions'
-import { samples } from './fixtures/runs'
+import { FunctionIDWithOwner } from '../../datasources/RunDatasource'
+import { Run } from '../../resources/RunsManager/Run'
+import { Logger } from '../../utils/Logger'
+import { functionSamples } from '../fixtures/functions'
+import { runSamples } from '../fixtures/runs'
 
 Logger.enabled = false
 const tmpPath = path.join(os.tmpdir(), 'run-tests')
 
-jest.mock('../resources/RunsManager/paths', () => {
+jest.mock('../../resources/RunsManager/paths', () => {
   const path = jest.requireActual('path')
   const os = jest.requireActual('os')
   return {
@@ -23,7 +23,7 @@ jest.mock('../resources/RunsManager/paths', () => {
   }
 })
 
-jest.mock('../resources/RunsManager/WatchersManager', () => {
+jest.mock('../../resources/RunsManager/WatchersManager', () => {
   return {
     WatchersManager: {
       getAvailableWatcher: jest.fn(),
@@ -31,7 +31,7 @@ jest.mock('../resources/RunsManager/WatchersManager', () => {
   }
 })
 
-jest.mock('../datasources/RunDatasource', () => {
+jest.mock('../../datasources/RunDatasource', () => {
   return {
     RunDatasource: {
       getRun: jest.fn(),
@@ -42,7 +42,7 @@ jest.mock('../datasources/RunDatasource', () => {
   }
 })
 
-jest.mock('../datasources/FunctionDatasource', () => {
+jest.mock('../../datasources/FunctionDatasource', () => {
   return {
     FunctionDatasource: {
       getFunction: jest.fn(),
@@ -50,9 +50,15 @@ jest.mock('../datasources/FunctionDatasource', () => {
   }
 })
 
-const RunDatasource = require('../datasources/RunDatasource').RunDatasource as Record<string, jest.Mock>
-const FunctionDatasource = require('../datasources/FunctionDatasource').FunctionDatasource as Record<string, jest.Mock>
-const WatchersManager = require('../resources/RunsManager/WatchersManager').WatchersManager as Record<string, jest.Mock>
+const RunDatasource = require('../../datasources/RunDatasource').RunDatasource as Record<string, jest.Mock>
+const FunctionDatasource = require('../../datasources/FunctionDatasource').FunctionDatasource as Record<
+  string,
+  jest.Mock
+>
+const WatchersManager = require('../../resources/RunsManager/WatchersManager').WatchersManager as Record<
+  string,
+  jest.Mock
+>
 
 const prepareRunToCreate = (sample: RunData) => {
   const user = { id: sample.userId, username: 'usernameWhoExecuted' }
@@ -105,7 +111,7 @@ describe('init', () => {
     const user = { id: 'userWhoExecuted', username: 'usernameWhoExecuted' }
     const token = 'token123'
     const r: any = new Run()
-    const getMock: RunGetObj = { runs: [samples.finishedRun] }
+    const getMock: RunGetObj = { runs: [runSamples.finishedRun] }
     RunDatasource.getRun.mockResolvedValue(getMock)
     await r.init({ id: 'finishedRunID', user }, token)
     expect(RunDatasource.getRun).toBeCalledTimes(1)
@@ -118,7 +124,7 @@ describe('init', () => {
   test('Creating new run', async () => {
     const token = 'token123'
     const r: any = new Run()
-    const { user, functionID } = prepareRunToCreate(samples.createdRun)
+    const { user, functionID } = prepareRunToCreate(runSamples.createdRun)
     await r.init({ user, ...functionID }, token)
     expect(RunDatasource.createFunctionRun).toBeCalledTimes(1)
     expect(RunDatasource.createFunctionRun).toBeCalledWith(user, functionID, { status: 'running' }, token)
@@ -139,7 +145,7 @@ describe('init', () => {
   test('Error on new run', async () => {
     const token = 'token123'
     const r: any = new Run()
-    const { user, functionID } = prepareRunToCreate(samples.createdRun)
+    const { user, functionID } = prepareRunToCreate(runSamples.createdRun)
     const err = new Error('ERR_MOCK')
     RunDatasource.createFunctionRun.mockRejectedValue(err)
     await expect(r.init({ user, ...functionID }, token)).rejects.toThrow(err)
@@ -150,7 +156,7 @@ describe('createRunRequest', () => {
   test('Calls FunctionDatasource correctly', async () => {
     const token = 'token123'
     const r: any = new Run()
-    const { user, functionID } = prepareRunToCreate(samples.createdRun)
+    const { user, functionID } = prepareRunToCreate(runSamples.createdRun)
     const functionGetMock: FunctionGetObj = { functions: [functionSamples.someFunction] }
     FunctionDatasource.getFunction.mockResolvedValue(functionGetMock)
     await r.init({ user, ...functionID }, token)
@@ -167,7 +173,7 @@ describe('createRunRequest', () => {
 describe('startRun', () => {
   test('Behavior on success is as expected', async done => {
     const { r, watcher, runRequest, token, req, res } = await prepareStart(
-      samples.createdRun,
+      runSamples.createdRun,
       functionSamples.someFunction
     )
     const waiter = new Waiter()
@@ -178,7 +184,7 @@ describe('startRun', () => {
     expect(WatchersManager.getAvailableWatcher).toBeCalledWith(runRequest)
     expect(r.watcherResponsible).toBe(watcher)
     expect(watcher.run).toBeCalledTimes(1)
-    expect(watcher.run).toBeCalledWith(req, res, samples.createdRun.id, 'some-run-type')
+    expect(watcher.run).toBeCalledWith(req, res, runSamples.createdRun.id, 'some-run-type')
 
     setTimeout(waiter.resolve, 500)
     await waiter.finish()
@@ -191,7 +197,7 @@ describe('startRun', () => {
   })
 
   test('Behavior on preparing phase error is as expected', async () => {
-    const { r, req, res, token } = await prepareStart(samples.createdRun, functionSamples.someFunction)
+    const { r, req, res, token } = await prepareStart(runSamples.createdRun, functionSamples.someFunction)
     const err = new Error('MOCK-ERR')
     WatchersManager.getAvailableWatcher.mockRejectedValueOnce(err)
     await expect(r.startRun(req, res, token, 'some-run-type')).resolves.toBeUndefined()
@@ -203,7 +209,7 @@ describe('startRun', () => {
   })
 
   test('Behavior when done promise rejects is as expected', async () => {
-    const { r, req, res, token, watcher } = await prepareStart(samples.createdRun, functionSamples.someFunction)
+    const { r, req, res, token, watcher } = await prepareStart(runSamples.createdRun, functionSamples.someFunction)
     const err = new Error('MOCK-ERR')
     watcher.run.mockRejectedValue(err)
     await expect(r.startRun(req, res, token, 'some-run-type')).resolves.toBeUndefined()
@@ -217,7 +223,7 @@ describe('startRun', () => {
 
 describe('onStartError', () => {
   test('Works as expected', async () => {
-    const { r, token } = await initRun(samples.createdRun)
+    const { r, token } = await initRun(runSamples.createdRun)
     RunDatasource.updateRun.mockResolvedValue({ updatedRuns: ['someData'] })
     const err = new Error('ERR-MOCK')
     await r.onStartError(token, err)
@@ -232,7 +238,7 @@ describe('onStartError', () => {
   })
 
   test('Works on update error', async () => {
-    const { r, token } = await initRun(samples.createdRun)
+    const { r, token } = await initRun(runSamples.createdRun)
     RunDatasource.updateRun.mockRejectedValue(new Error())
     const err = new Error('ERR-MOCK')
     await r.onStartError(token, err)
@@ -250,7 +256,7 @@ describe('transferResult', () => {
   test('Works as expected', async () => {
     const s = new PassThrough()
     s.end('asdf')
-    const { r } = await initRun(samples.createdRun)
+    const { r } = await initRun(runSamples.createdRun)
     const watcher = {
       getResultInfo: jest.fn().mockResolvedValue({ status: 'finished' }),
       getResultOutput: jest.fn().mockResolvedValue(s),

@@ -1,15 +1,15 @@
 import { Waiter } from '@hermes-serverless/custom-promises'
 import { randomBytes } from 'crypto'
 import http, { RequestListener } from 'http'
-import { Watcher } from '../../resources/RunsManager/WatchersManager/Watcher'
-import { Logger } from '../../utils/Logger'
+import { Watcher } from '../../../resources/RunsManager/WatchersManager/Watcher'
+import { Logger } from '../../../utils/Logger'
 import { sleep } from '../utils'
 
 Logger.enabled = false
-const RedisWrapper: any = require('../../resources/RedisWrapper').RedisWrapper
-const DockerContainer: any = require('../../resources/DockerInterface/DockerContainer').DockerContainer
+const RedisWrapper: any = require('../../../resources/RedisWrapper').RedisWrapper
+const DockerContainer: any = require('../../../resources/DockerInterface/DockerContainer').DockerContainer
 
-jest.mock('../../resources/DockerInterface/DockerContainer', () => {
+jest.mock('../../../resources/DockerInterface/DockerContainer', () => {
   return {
     DockerContainer: jest.fn().mockImplementation(() => ({
       start: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('../../resources/DockerInterface/DockerContainer', () => {
   }
 })
 
-jest.mock('../../resources/RedisWrapper', () => {
+jest.mock('../../../resources/RedisWrapper', () => {
   return {
     RedisWrapper: {
       addSubscription: jest.fn(),
@@ -26,7 +26,7 @@ jest.mock('../../resources/RedisWrapper', () => {
   }
 })
 
-jest.mock('../../utils/ResettableTimer', () => {
+jest.mock('../../../utils/ResettableTimer', () => {
   return {
     ResettableTimer: jest.fn().mockImplementation(() => ({
       stop: jest.fn(),
@@ -170,20 +170,20 @@ describe('Run', () => {
     let RedisWrapperMock: any
     beforeAll(() => {
       jest.resetModules()
-      jest.doMock('../../resources/ProxyServer', () => {
+      jest.doMock('../../../resources/ProxyServer', () => {
         return {
           Proxy: {
             redirect: jest.fn(),
           },
         }
       })
-      ProxyMock = require('../../resources/ProxyServer').Proxy
-      WatcherMock = require('../../resources/RunsManager/WatchersManager/Watcher').Watcher
-      RedisWrapperMock = require('../../resources/RedisWrapper').RedisWrapper
+      ProxyMock = require('../../../resources/ProxyServer').Proxy
+      WatcherMock = require('../../../resources/RunsManager/WatchersManager/Watcher').Watcher
+      RedisWrapperMock = require('../../../resources/RedisWrapper').RedisWrapper
     })
 
     afterAll(() => {
-      jest.unmock('../../resources/ProxyServer')
+      jest.unmock('../../../resources/ProxyServer')
     })
 
     test('Async endpoint is correct', async () => {

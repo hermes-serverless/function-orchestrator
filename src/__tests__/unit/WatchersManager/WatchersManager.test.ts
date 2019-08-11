@@ -1,9 +1,9 @@
-import { Logger } from '../../utils/Logger'
+import { Logger } from '../../../utils/Logger'
 
 Logger.enabled = false
-const WatchersManager: any = require('../../resources/RunsManager/WatchersManager').WatchersManager
-const WatcherQueue: any = require('../../resources/RunsManager/WatchersManager/WatcherQueue').WatcherQueue
-jest.mock('../../resources/RunsManager/WatchersManager/WatcherQueue', () => {
+const WatchersManager: any = require('../../../resources/RunsManager/WatchersManager').WatchersManager
+const WatcherQueue: any = require('../../../resources/RunsManager/WatchersManager/WatcherQueue').WatcherQueue
+jest.mock('../../../resources/RunsManager/WatchersManager/WatcherQueue', () => {
   return {
     WatcherQueue: jest.fn(),
   }

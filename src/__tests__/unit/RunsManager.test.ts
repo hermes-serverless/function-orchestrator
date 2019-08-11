@@ -1,9 +1,9 @@
-import { RUNS_CLEANUP_INTERVAL } from '../limits/'
-import { Logger } from '../utils/Logger'
+import { RUNS_CLEANUP_INTERVAL } from '../../limits'
+import { Logger } from '../../utils/Logger'
 
 Logger.enabled = false
 
-jest.mock('../resources/RunsManager/Run.ts', () => {
+jest.mock('../../resources/RunsManager/Run.ts', () => {
   return jest.fn().mockImplementation(() => {
     return {
       init: jest.fn(),
@@ -12,7 +12,7 @@ jest.mock('../resources/RunsManager/Run.ts', () => {
 })
 
 jest.useFakeTimers()
-const RunsManager = require('../resources/RunsManager').RunsManager
+const RunsManager = require('../../resources/RunsManager').RunsManager
 
 test('Cleanup interval works', () => {
   const spy = jest.spyOn(RunsManager, 'cleanup')

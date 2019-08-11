@@ -1,8 +1,8 @@
 import { Waiter } from '@hermes-serverless/custom-promises'
 import express from 'express'
 import http from 'http'
-import { Proxy } from '../resources/ProxyServer'
-import { Logger } from '../utils/Logger'
+import { Proxy } from '../../resources/ProxyServer'
+import { Logger } from '../../utils/Logger'
 
 Logger.enabled = false
 

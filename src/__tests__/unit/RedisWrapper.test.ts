@@ -1,5 +1,5 @@
 import R from 'ramda'
-import { Logger } from '../utils/Logger'
+import { Logger } from '../../utils/Logger'
 
 Logger.enabled = false
 
@@ -14,7 +14,7 @@ jest.doMock('redis', () => {
   }
 })
 
-const RedisWrapper = require('../resources/RedisWrapper').RedisWrapper
+const RedisWrapper = require('../../resources/RedisWrapper').RedisWrapper
 
 beforeEach(() => {
   jest.clearAllMocks()

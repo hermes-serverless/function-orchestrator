@@ -1,11 +1,11 @@
 import { Waiter } from '@hermes-serverless/custom-promises'
 import { randomBytes } from 'crypto'
-import { ProducerConsumer, WatcherQueue } from '../../resources/RunsManager/WatchersManager/WatcherQueue'
-import { Logger } from '../../utils/Logger'
+import { ProducerConsumer, WatcherQueue } from '../../../resources/RunsManager/WatchersManager/WatcherQueue'
+import { Logger } from '../../../utils/Logger'
 
 Logger.enabled = false
-const Watcher: any = require('../../resources/RunsManager/WatchersManager/Watcher').Watcher
-jest.mock('../../resources/RunsManager/WatchersManager/Watcher', () => {
+const Watcher: any = require('../../../resources/RunsManager/WatchersManager/Watcher').Watcher
+jest.mock('../../../resources/RunsManager/WatchersManager/Watcher', () => {
   return {
     Watcher: jest.fn(),
   }
