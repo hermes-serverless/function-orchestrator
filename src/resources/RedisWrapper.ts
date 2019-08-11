@@ -1,6 +1,7 @@
 import R from 'ramda'
 import redis from 'redis'
 import { Logger } from './../utils/Logger'
+import { Waiter } from '@hermes-serverless/custom-promises'
 
 type Listener = (...args: any) => void
 interface ActiveSubscriptions {
@@ -19,6 +20,9 @@ class NoSuchChannel extends Error {
   }
 }
 
+const addName = (msg: string) => {
+  return `[RedisWrapper] ${msg}`
+}
 export class RedisWrapper {
   public static client = redis.createClient({
     host: 'event-broker',
@@ -29,7 +33,7 @@ export class RedisWrapper {
 
   public static addSubscription(channelName: string, listenerID: string, listener: Listener) {
     const listenerWrapper = (channel: string, ...args: any) => {
-      Logger.info(`RedisEvent `, { channel, ...args })
+      Logger.info(addName(`Event `), { channel, ...args })
       if (channel === channelName) listener(channel, ...args)
     }
     this.client.subscribe(channelName)
@@ -43,7 +47,7 @@ export class RedisWrapper {
       listener: listenerWrapper,
     })
 
-    Logger.info(`Added subscription to channel ${channelName}, ${listenerID}`)
+    Logger.info(addName(`Added subscription to channel ${channelName}, ${listenerID}`))
   }
 
   public static removeSubscription(channelName: string, listenerID: string) {
@@ -59,7 +63,16 @@ export class RedisWrapper {
       this.client.unsubscribe(channelName)
     }
 
-    Logger.info(`Removed subscription to channel ${channelName}, ${listenerID}`)
+    Logger.info(addName(`Removed subscription to channel ${channelName}, ${listenerID}`))
+  }
+
+  public static shutdown() {
+    const done = new Waiter()
+    this.client.quit(() => {
+      Logger.info(addName('Shutdown redis'))
+      done.resolve()
+    })
+    return done.finish()
   }
 }
 
