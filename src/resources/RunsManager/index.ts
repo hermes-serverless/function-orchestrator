@@ -36,5 +36,9 @@ export class RunsManager {
     Logger.info(`[RunsManager] Cleanup runsLen: ${RunsManager.runs.length}`)
   }
 
+  public static shutdown() {
+    clearInterval(this.cleanupTimer)
+  }
+
   public static cleanupTimer = setInterval(() => RunsManager.cleanup(), RUNS_CLEANUP_INTERVAL)
 }
