@@ -1,6 +1,6 @@
 import { FunctionData } from '@hermes-serverless/api-types-db-manager/function'
 
-export const samples: Record<string, FunctionData> = {
+export const functionSamples: Record<string, FunctionData> = {
   someFunction: {
     id: 'someFunctionID',
     ownerId: 'ownerID',

@@ -1,6 +1,6 @@
 import { RunData } from '@hermes-serverless/api-types-db-manager/run'
 
-export const samples: Record<string, RunData> = {
+export const runSamples: Record<string, RunData> = {
   finishedRun: {
     id: 'finishedRunID',
     userId: 'userWhoExecuted',
