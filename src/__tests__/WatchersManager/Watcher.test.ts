@@ -2,8 +2,10 @@ import { Waiter } from '@hermes-serverless/custom-promises'
 import { randomBytes } from 'crypto'
 import http, { RequestListener } from 'http'
 import { Watcher } from '../../resources/RunsManager/WatchersManager/Watcher'
+import { Logger } from '../../utils/Logger'
 import { sleep } from '../utils'
 
+Logger.enabled = false
 const RedisWrapper: any = require('../../resources/RedisWrapper').RedisWrapper
 const DockerContainer: any = require('../../resources/DockerInterface/DockerContainer').DockerContainer
 
@@ -47,7 +49,6 @@ const mockWatcher = (w: any) => {
 
 const closeServer = (server: http.Server, waiter: Waiter<any>) => {
   server.close(err => {
-    console.log('CLOSED', err)
     if (err) waiter.reject(err)
     waiter.resolve()
   })

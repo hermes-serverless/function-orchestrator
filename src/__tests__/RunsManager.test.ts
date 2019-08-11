@@ -1,4 +1,7 @@
 import { RUNS_CLEANUP_INTERVAL } from '../limits/'
+import { Logger } from '../utils/Logger'
+
+Logger.enabled = false
 
 jest.mock('../resources/RunsManager/Run.ts', () => {
   return jest.fn().mockImplementation(() => {

@@ -1,4 +1,7 @@
 import R from 'ramda'
+import { Logger } from '../utils/Logger'
+
+Logger.enabled = false
 
 const subscribe = jest.fn()
 const unsubscribe = jest.fn()
