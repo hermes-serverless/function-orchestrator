@@ -1,5 +1,5 @@
-const INITIAL_PORT = 8888
-const TOTAL_PORTS = 200
+const INITIAL_PORT = 23456
+const TOTAL_PORTS = 2000
 
 const shuffleArray = (array: any[]) => {
   for (let i = array.length - 1; i > 0; i -= 1) {
@@ -23,9 +23,4 @@ export class HostPortProvider {
   public static add(port: number) {
     return HostPortProvider.ports.push(port)
   }
-}
-
-export interface HostPortProviderInterface {
-  get: () => number | undefined
-  add: (port: number) => number
 }

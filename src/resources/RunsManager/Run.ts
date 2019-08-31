@@ -1,14 +1,19 @@
+import { RunData } from '@hermes-serverless/api-types-db-manager/run'
+import { RunStatus } from '@hermes-serverless/api-types-function-watcher'
+import { Waiter } from '@hermes-serverless/custom-promises'
+import { createFsReadStream, createFsWriteStream } from '@hermes-serverless/fs-utils'
 import { Request, Response } from 'express'
 import fs from 'fs'
 import path from 'path'
-import { Readable, Writable } from 'stream'
+import { PassThrough, pipeline } from 'stream'
+import { promisify } from 'util'
 import { RunDatasource } from '../../datasources'
+import { FunctionDatasource } from '../../datasources/FunctionDatasource'
+import { FunctionIDWithOwner } from '../../datasources/RunDatasource'
+import { User } from '../../typings.d'
 import { Logger } from '../../utils/Logger'
-import { FunctionDatasource } from './../../datasources/FunctionDatasource'
-import { BaseRunObj, FunctionIDWithOwner } from './../../datasources/RunDatasource'
-import { User } from './../../typings.d'
-import { Waiter } from './../../utils/CustomPromises'
-import { WatchersManager } from './WatchersManager'
+import { resultsBasePath } from './paths'
+import { RunRequest, WatchersManager } from './WatchersManager'
 import { Watcher } from './WatchersManager/Watcher'
 
 interface UserInfo {
@@ -21,150 +26,177 @@ export type ExistingRun = UserInfo & { id: string }
 export class Run {
   private id: string
   private user: User
-  private data: BaseRunObj
-  private fnID: FunctionIDWithOwner
+  private data: RunData
 
-  private ready: Waiter<void>
-
-  private doneExecuting: boolean
-  private donePromise: Promise<any>
+  private finishedExecuting: boolean
+  private done: Promise<any>
+  private allFinishedWaiter: Waiter<any>
   private finishedTransferingResult: boolean
 
   private watcherResponsible: Watcher
 
-  constructor(run: RunToCreate | ExistingRun, token: string) {
-    this.ready = new Waiter()
-    const { user } = run
-    this.user = user
-
-    const start = async () => {
-      try {
-        if ((run as ExistingRun).id) {
-          const { id } = run as ExistingRun
-          const { runs } = await RunDatasource.getRun(user, { id }, token)
-          this.data = runs[0]
-          this.doneExecuting = this.finishedTransferingResult = true
-        } else {
-          const { functionOwner, functionName, functionVersion } = run as RunToCreate
-          this.fnID = {
-            functionOwner,
-            functionName,
-            functionVersion,
-          }
-
-          const { createdRun } = await RunDatasource.createFunctionRun(
-            user,
-            this.fnID,
-            { status: 'running' },
-            token
-          )
-          this.data = createdRun[0]
-          this.doneExecuting = this.finishedTransferingResult = false
-          this.id = this.data.id.toString()
-          Logger.info(this.addName(`Created run`))
-        }
-
-        this.id = this.data.id.toString()
-        this.ready.resolve()
-      } catch (err) {
-        Logger.error(this.addName('Error on Run init'), err)
-        this.ready.reject(err)
-      }
-    }
-
-    start()
+  constructor() {
+    this.allFinishedWaiter = new Waiter()
   }
 
-  public isReady = () => {
-    return this.ready.finish()
-  }
-
-  public getID = () => {
+  get runID() {
     return this.id
   }
 
-  public getStatus = async () => {
-    await this.ready.finish()
-
-    if (!this.finishedTransferingResult) {
-      Logger.info(this.addName('Not finished transfering result, get status'))
-      return this.watcherResponsible.getRunStatusStream(this.id)
-    }
-
-    Logger.info(this.addName('Finished transfering result, get result'))
-    return this.getResultReadStream()
+  get allFinished() {
+    return this.finishedExecuting && this.finishedTransferingResult
   }
 
-  public getResult = async () => {
-    await this.ready.finish()
-    if (this.finishedTransferingResult) return this.getResultReadStream()
+  get allFinishedPromise() {
+    return this.allFinishedWaiter.finish()
+  }
+
+  public resultOutputPath = () => {
+    return path.join(resultsBasePath, `output-${this.id}`)
+  }
+
+  public resultInfoPath = () => {
+    return path.join(resultsBasePath, `info-${this.id}`)
+  }
+
+  public resultOutput = () => {
+    if (this.finishedTransferingResult) return createFsReadStream(this.resultOutputPath())
     return null
   }
 
-  public startRun = async (req: Request, res: Response, token: string, user: User) => {
-    if (this.doneExecuting) return
-    await this.ready.finish()
+  public resultInfo = async () => {
+    if (this.finishedTransferingResult) {
+      return JSON.parse(await fs.promises.readFile(this.resultInfoPath(), { encoding: 'utf-8' }))
+    }
+    return null
+  }
+
+  public init = async (run: RunToCreate | ExistingRun, token: string) => {
+    const { user } = run
+    this.user = user
 
     try {
-      const { functions } = await FunctionDatasource.getFunction(user, this.fnID, token)
-      const { id: functionID, imageName, gpuCapable } = functions[0]
-      Logger.info(this.addName(`Got function`))
-      this.watcherResponsible = WatchersManager.getAvailableWatcher(functionID)
-      if (this.watcherResponsible == null) {
-        Logger.info(this.addName(`Has to create watcher`))
-        this.watcherResponsible = await WatchersManager.createWatcher({
-          functionID,
-          imageName,
-          gpuCapable,
-        })
+      if ((run as ExistingRun).id) {
+        const { id } = run as ExistingRun
+        const { runs } = await RunDatasource.getRun(user, { id }, token)
+        this.data = runs[0]
+        this.finishedExecuting = this.finishedTransferingResult = true
+        this.id = this.data.id.toString()
+      } else {
+        const { functionOwner, functionName, functionVersion } = run as RunToCreate
+        const { createdRun } = await RunDatasource.createFunctionRun(
+          user,
+          { functionOwner, functionName, functionVersion },
+          { status: 'running' },
+          token
+        )
+        this.data = createdRun[0]
+        this.finishedExecuting = this.finishedTransferingResult = false
+        this.id = this.data.id.toString()
+        Logger.info(this.addName(`Created run`))
       }
-      Logger.info(this.addName(`Got watcher`))
-      this.donePromise = this.watcherResponsible.run(req, res, this.data.id.toString())
-      this.donePromise.then(() => {
-        this.doneExecuting = true
-        this.transferResult()
-      })
     } catch (err) {
-      Logger.error(this.addName('Error starting run'), err)
+      Logger.error(this.addName('Error on Run init'), err)
+      throw err
+    }
+  }
+
+  public getStatus = (additionalFields?: string[]) => {
+    if (!this.finishedTransferingResult) {
+      Logger.info(this.addName('Not finished transfering result, get status'))
+      return this.watcherResponsible.getRunStatus(this.id, additionalFields)
+    }
+
+    Logger.info(this.addName('Finished transfering result, get result'))
+    return this.resultInfo()
+  }
+
+  private createRunRequest = async (token: string): Promise<RunRequest> => {
+    const fnID: FunctionIDWithOwner = {
+      functionOwner: this.data.function.owner.username,
+      functionName: this.data.function.functionName,
+      functionVersion: this.data.function.functionVersion,
+    }
+
+    const { functions } = await FunctionDatasource.getFunction(this.user, fnID, token)
+    const { id: functionID, imageName, gpuCapable } = functions[0]
+    return { functionID, imageName, gpuCapable }
+  }
+
+  public startRun = async (req: Request, res: Response, token: string, runType: 'async' | 'sync') => {
+    try {
+      const runRequest = await this.createRunRequest(token)
+      Logger.info(this.addName(`Got function`))
+      this.watcherResponsible = await WatchersManager.getAvailableWatcher(runRequest)
+      Logger.info(this.addName(`Got watcher`))
+      this.done = this.watcherResponsible.run(req, res, this.data.id, runType)
+      this.done.then(
+        () => {
+          Logger.info(this.addName('Finished executing, start transfer'))
+          this.finishedExecuting = true
+          this.transferResult()
+        },
+        err => this.onStartError(token, err)
+      )
+    } catch (err) {
+      await this.onStartError(token, err)
+    }
+  }
+
+  private onStartError = async (token: string, err: Error) => {
+    Logger.error(this.addName('Error starting run'), err)
+    try {
       const { updatedRuns } = await RunDatasource.updateRun(
-        user,
+        this.user,
         { id: this.data.id.toString() },
         { status: 'error' },
         token
       )
-      this.data = updatedRuns[0]
-    }
-  }
 
-  public allFinished = () => {
-    return this.doneExecuting && this.finishedTransferingResult
+      this.data = updatedRuns[0]
+    } catch (err) {
+      Logger.error(this.addName(`Error updating run`), err)
+    }
+
+    fs.writeFileSync(this.resultOutputPath(), '')
+    const status: RunStatus = { status: 'error', error: `${err.constructor.name} - ${err.message}` }
+    fs.writeFileSync(this.resultInfoPath(), JSON.stringify(status))
+    this.finishedExecuting = true
+    this.finishedTransferingResult = true
+    this.allFinishedWaiter.reject(err)
   }
 
   private transferResult = async () => {
     try {
-      await this.persistResult()
-      Logger.info(this.addName(`Start transfer result`))
-      const out = await this.getResultWriteStream()
-      const file = await this.watcherResponsible.getRunResult(this.id)
+      const resultInfoJson = await this.watcherResponsible.getResultInfo(this.id)
+      await this.persistResult(resultInfoJson)
+      Logger.info(this.addName(`Start result transfering`))
 
-      const transferWaiter = new Waiter()
-      out.on('error', transferWaiter.reject)
-      file.on('error', transferWaiter.reject)
-      out.on('close', transferWaiter.resolve)
-      file.pipe(out)
-      await transferWaiter.finish()
+      const resultInfo = new PassThrough()
+      resultInfo.end(JSON.stringify(resultInfoJson))
+      const resultInfoFile = await createFsWriteStream(this.resultInfoPath())
+
+      const resultOutput = await this.watcherResponsible.getResultOutput(this.id)
+      const resultOutputFile = await createFsWriteStream(this.resultOutputPath())
+
+      const promisifiedPipeline = promisify(pipeline)
+      await promisifiedPipeline([resultInfo, resultInfoFile])
+      await promisifiedPipeline([resultOutput, resultOutputFile])
+
       this.finishedTransferingResult = true
+      this.allFinishedWaiter.resolve()
       Logger.info(this.addName(`End transfer result`))
-      this.watcherResponsible.deleteRunResult(this.id)
+      this.watcherResponsible.deleteRunData(this.id)
+      this.watcherResponsible.shutdown()
     } catch (err) {
+      this.allFinishedWaiter.reject(err)
       Logger.error(this.addName(`Error transfering result`), err)
     }
   }
 
-  private persistResult = async () => {
+  private persistResult = async (resultInfo: RunStatus) => {
     try {
-      const runInfo = await this.watcherResponsible.getRunStatus(this.id)
-      const { status, startTime, endTime } = runInfo
+      const { status, startTime, endTime } = resultInfo
       await RunDatasource.updateRun(
         this.user,
         { id: this.id },
@@ -178,26 +210,6 @@ export class Run {
     } catch (err) {
       Logger.error(this.addName('Error updating status on db'), err)
     }
-  }
-
-  private getResultWriteStream = (): Promise<Writable> => {
-    const stream = fs.createWriteStream(`/app/results/${this.id}`, { flags: 'wx' })
-    const streamReady: Waiter<Writable> = new Waiter()
-    stream.on('open', () => streamReady.resolve(stream))
-    stream.on('error', streamReady.reject)
-    return streamReady.finish()
-  }
-
-  private getResultReadStream = async (): Promise<Readable> => {
-    const stream = fs.createReadStream(this.getResultPath())
-    const streamReady: Waiter<Readable> = new Waiter()
-    stream.on('open', () => streamReady.resolve(stream))
-    stream.on('error', streamReady.reject)
-    return streamReady.finish()
-  }
-
-  private getResultPath = () => {
-    return path.join('/', 'app', 'results', `${this.id}`)
   }
 
   private addName = (msg: string) => {

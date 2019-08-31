@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios'
 import { DbManagerErrorResponse } from '../typings'
+import { Logger } from '../utils/Logger'
 
 export interface ErrorToCheck {
   name: string
@@ -14,6 +15,11 @@ export const createErrorToCheck = (name: string, error: RouteError) => {
 }
 
 export const errorCheck = (axiosError: AxiosError, errorsToCheck: ErrorToCheck[]) => {
+  if (!axiosError.response || !axiosError.response.data) {
+    Logger.error(axiosError)
+    throw new InternalServerError()
+  }
+
   const err: DbManagerErrorResponse = axiosError.response.data
   const errMatch = errorsToCheck.filter(el => err.error === el.name)
   if (errMatch.length === 0) throw new InternalServerError()

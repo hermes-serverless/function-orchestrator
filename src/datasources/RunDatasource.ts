@@ -1,6 +1,7 @@
+import { RunDeleteObj, RunGetObj, RunPostObj, RunPutObj } from '@hermes-serverless/api-types-db-manager/run'
 import axios, { AxiosInstance } from 'axios'
 import { User } from '../typings'
-import { RunProto } from './../typings.d'
+import { RunProto } from '../typings.d'
 import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
 import { FunctionID, PartialFunctionID } from './FunctionDatasource'
 
@@ -16,41 +17,6 @@ export interface PartialFunctionIDWithOwner extends PartialFunctionID {
 
 export interface FunctionIDWithOwner extends FunctionID {
   functionOwner: string
-}
-
-export interface BaseRunObj {
-  id: number
-  userId: string
-  status: string
-  startTime: Date | null
-  outputPath: string | null
-  endTime: Date | null
-  watcherID: string | null
-  function: {
-    functionName: string
-    language: string
-    gpuCapable: boolean
-    scope: string
-    imageName: string
-    functionVersion: string
-    owner: { username: string }
-  }
-}
-
-interface RunGetObj {
-  runs: BaseRunObj[]
-}
-
-interface RunDeleteObj {
-  deletedRuns: BaseRunObj[]
-}
-
-interface RunPostObj {
-  createdRun: BaseRunObj[]
-}
-
-interface RunPutObj {
-  updatedRuns: BaseRunObj[]
 }
 
 const createFunctionRunsUrl = (username: string, partialFunctionID: PartialFunctionIDWithOwner) => {
@@ -95,31 +61,19 @@ export class RunDatasource {
     }
   }
 
-  static async updateRun(
-    user: User,
-    runID: { id: string },
-    updatedRun: RunProto,
-    auth: string
-  ): Promise<RunPutObj> {
+  static async updateRun(user: User, runID: { id: string }, updatedRun: RunProto, auth: string): Promise<RunPutObj> {
     try {
       const res = await this.axios.put(createRunsUrl(user.username, runID), updatedRun, {
         headers: { Authorization: auth },
       })
       return res.data
     } catch (errResponse) {
-      const possibleErrors = [
-        ...commonErrors,
-        createErrorToCheck('ValidationError', new ValidationError()),
-      ]
+      const possibleErrors = [...commonErrors, createErrorToCheck('ValidationError', new ValidationError())]
       errorCheck(errResponse, possibleErrors)
     }
   }
 
-  static async getFunctionRun(
-    user: User,
-    functionID: PartialFunctionIDWithOwner,
-    auth: string
-  ): Promise<RunGetObj> {
+  static async getFunctionRun(user: User, functionID: PartialFunctionIDWithOwner, auth: string): Promise<RunGetObj> {
     try {
       const res = await this.axios.get(createFunctionRunsUrl(user.username, functionID), {
         headers: { Authorization: auth },
@@ -159,10 +113,7 @@ export class RunDatasource {
       })
       return res.data
     } catch (errResponse) {
-      const possibleErrors = [
-        ...commonErrors,
-        createErrorToCheck('ValidationError', new ValidationError()),
-      ]
+      const possibleErrors = [...commonErrors, createErrorToCheck('ValidationError', new ValidationError())]
       errorCheck(errResponse, possibleErrors)
     }
   }

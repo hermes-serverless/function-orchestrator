@@ -5,7 +5,7 @@ import { AuthenticatedReq } from '../../typings'
 import { AllFunctionsHandler, BaseFunctionHandler, OneFunctionHandler } from './functionHandlers'
 import { FunctionRunHandler, RunHandler } from './runHandlers'
 import { userHandler } from './userHandlers'
-import { newRunHandler, runResultHandler, runStatusHandler } from './watcherHandler'
+import { newRunHandler, runResultInfoHandler, runResultOutputHandler, runStatusHandler } from './watcherHandler'
 
 const validateAuthentication = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
   try {
@@ -51,15 +51,12 @@ userRouter.all('/:username/function/:functionName/:functionVersion', [OneFunctio
 userRouter.all('/:username/runs/', [RunHandler.handler])
 userRouter.all('/:username/runs/:runId', [RunHandler.handler])
 userRouter.all('/:username/function-runs/:functionOwner', [FunctionRunHandler.handler])
-userRouter.all('/:username/function-runs/:functionOwner/:functionName', [
-  FunctionRunHandler.handler,
-])
-userRouter.all('/:username/function-runs/:functionOwner/:functionName/:functionVersion', [
-  FunctionRunHandler.handler,
-])
+userRouter.all('/:username/function-runs/:functionOwner/:functionName', [FunctionRunHandler.handler])
+userRouter.all('/:username/function-runs/:functionOwner/:functionName/:functionVersion', [FunctionRunHandler.handler])
 
 userRouter.all('/:username/run/:functionOwner/:functionName/:functionVersion', [newRunHandler])
 userRouter.all('/:username/run/:runId/status', [runStatusHandler])
-userRouter.all('/:username/run/:runId/result', [runResultHandler])
+userRouter.all('/:username/run/:runId/result-info', [runResultInfoHandler])
+userRouter.all('/:username/run/:runId/result-output', [runResultOutputHandler])
 
 export { userRouter }
