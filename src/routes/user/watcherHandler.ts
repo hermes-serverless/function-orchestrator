@@ -50,6 +50,7 @@ export const runResultOutputHandler = async (req: AuthenticatedReq, res: Respons
     if (req.method === 'GET') {
       const run = await RunsManager.getRun(req.auth.user, req.params.runId, req.auth.token)
       const output = await run.resultOutput()
+      if (!output) return res.status(400).send('Either the run is not finished or the result is not ready yet')
       res.status(200)
       output.pipe(res)
     } else {
