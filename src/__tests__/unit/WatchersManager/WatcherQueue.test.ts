@@ -247,7 +247,7 @@ describe('WatcherQueue', () => {
         const w: any = new WatcherQueue({ imageName: 'someDockerImage', gpuCapable: true, functionID: '1' }, onDone)
         w.producerConsumer.consume = jest.fn()
         w.producerConsumer.itemsNumber = jest.fn().mockReturnValue(itemsNumber)
-        w.producerConsumer.requestsNumber = jest.fn().mockReturnValue(reqsNumber + 1)
+        w.producerConsumer.requestsNumber = jest.fn().mockReturnValue(reqsNumber)
         w.watchersStarting = Array(watchersStarting).fill(0)
         expect(w.watchersStarting.length).toBe(watchersStarting)
         w._createWatchers = jest.fn()

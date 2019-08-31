@@ -113,7 +113,7 @@ describe('init', () => {
     const r: any = new Run()
     const getMock: RunGetObj = { runs: [runSamples.finishedRun] }
     RunDatasource.getRun.mockResolvedValue(getMock)
-    await r.init({ id: 'finishedRunID', user }, token)
+    await r.init({ user, id: 'finishedRunID' }, token)
     expect(RunDatasource.getRun).toBeCalledTimes(1)
     expect(RunDatasource.getRun).toBeCalledWith(user, { id: 'finishedRunID' }, token)
     expect(r.id).toBe('finishedRunID')
@@ -139,7 +139,7 @@ describe('init', () => {
     const r: any = new Run()
     const err = new Error('ERR_MOCK')
     RunDatasource.getRun.mockRejectedValue(err)
-    await expect(r.init({ id: 'finishedRunID', user }, token)).rejects.toThrow(err)
+    await expect(r.init({ user, id: 'finishedRunID' }, token)).rejects.toThrow(err)
   })
 
   test('Error on new run', async () => {

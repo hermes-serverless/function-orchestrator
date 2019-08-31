@@ -34,10 +34,10 @@ export const createRunData = ({ functionName, language, gpuCapable, functionVers
     function: {
       functionName,
       language,
+      functionVersion,
       gpuCapable,
       scope: 'PUBLIC',
       imageName: createImageName({ functionName, functionVersion }),
-      functionVersion,
       owner: { username: 'functionOwner' },
     },
   }
@@ -50,13 +50,13 @@ export const createFunctionData = ({
   functionVersion,
 }: FunctionBasicData): FunctionData => {
   return {
+    functionName,
+    functionVersion,
     id: 'function-id',
     ownerId: 'functionOwner',
-    functionName,
     gpuCapable,
     scope: 'PUBLIC',
     imageName: createImageName({ functionName, functionVersion }),
-    functionVersion,
   }
 }
 
