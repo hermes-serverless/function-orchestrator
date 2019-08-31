@@ -49,27 +49,26 @@ export class WatcherQueue {
   private watchers: Watcher[]
   private watchersStarting: { promise: Promise<any>; watcherID: string }[]
   private producerConsumer: ProducerConsumer
-  private watcherType: RunRequest
-  private onDone: () => void
 
-  constructor(watcherType: RunRequest, onDone: () => void) {
+  constructor(private watcherType: RunRequest, private onDone: () => void) {
     this.producerConsumer = new ProducerConsumer()
-    this.watcherType = watcherType
     this.watchersStarting = []
     this.watchers = []
-    this.onDone = onDone
   }
 
   public getWatcher = () => {
-    const promise = this.producerConsumer.consume()
     const promisedAndReadyWatchers = this.watchersStarting.length + this.producerConsumer.itemsNumber()
-    if (this.producerConsumer.requestsNumber() >= promisedAndReadyWatchers / 2) {
-      this._createWatchers(2 * this.producerConsumer.requestsNumber() - promisedAndReadyWatchers)
+    const newRequestsNumber = this.producerConsumer.requestsNumber() + 1
+    if (newRequestsNumber >= promisedAndReadyWatchers / 2) {
+      const create = 2 * newRequestsNumber - promisedAndReadyWatchers
+      this._createWatchers(create)
     }
+    const promise = this.producerConsumer.consume()
     return promise
   }
 
   public _createWatchers = (n: number) => {
+    Logger.info(this.addName(`Create ${n} watchers`))
     for (let i = 0; i < n; i += 1) {
       this._createWatcher()
     }
@@ -78,8 +77,12 @@ export class WatcherQueue {
   public _createWatcher = (tries = 2) => {
     if (tries === 0) return
     const onShutdown = (watcherID: string) => {
-      Logger.info(this.addName(`Remove ${watcherID}`))
       this.watchers = this.watchers.filter(el => el.watcherID !== watcherID)
+      Logger.info(
+        this.addName(
+          `Remove ${watcherID}- watchers: ${this.watchers.length} - watchersStarting: ${this.watchersStarting.length}`
+        )
+      )
       if (this.watchers.length === 0 && this.watchersStarting.length === 0) this.onDone()
     }
 
@@ -98,10 +101,22 @@ export class WatcherQueue {
       .then(() => {
         this.producerConsumer.add(watcher)
         this.watchers.push(watcher)
+        Logger.info(
+          this.addName(
+            `New watcher - watchers: ${this.watchers.length} - watchersStarting: ${this.watchersStarting.length}`
+          )
+        )
       })
       .catch(err => {
         Logger.error(this.addName(`Error starting watcher`), err)
         this._createWatcher(tries - 1)
+        Logger.info(
+          this.addName(
+            `Error starting watcher - tries left ${tries - 1} - watchers: ${this.watchers.length} - watchersStarting: ${
+              this.watchersStarting.length
+            }`
+          )
+        )
       })
       .finally(() => {
         this.watchersStarting = this.watchersStarting.filter(el => el.watcherID !== watcher.watcherID)
@@ -110,6 +125,6 @@ export class WatcherQueue {
   }
 
   private addName(msg: string) {
-    return `[WatcherQueue] ${msg}`
+    return `[WatcherQueue ${this.watcherType.imageName}] ${msg}`
   }
 }

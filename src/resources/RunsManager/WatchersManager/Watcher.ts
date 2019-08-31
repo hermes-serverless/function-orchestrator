@@ -53,7 +53,7 @@ export class Watcher {
       port: 3000,
       dnsName: this.watcherName,
       detach: true,
-      network: 'hermes',
+      network: process.env.HERMES_NETWORK || 'hermes',
       envVariables: [`REDIS_CHANNEL=${this.watcherName}`],
     })
 
@@ -125,6 +125,7 @@ export class Watcher {
     this.switchedOn = false
     this.onShutdown(this.id)
     Logger.info(this.addName('Shutdown'))
+    this.timer.stop()
     return this.datasource.shutdown()
   }
 

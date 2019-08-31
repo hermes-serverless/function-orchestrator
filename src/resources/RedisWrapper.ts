@@ -82,6 +82,6 @@ if (process.env.NODE_ENV === 'development') {
   })
 
   RedisWrapper.client.on('monitor', (time, args, rawReply) => {
-    console.log(`[redis monitor] ${time}: ${args}`)
+    // console.log(`[redis monitor] ${time}: ${args}`)
   })
 }

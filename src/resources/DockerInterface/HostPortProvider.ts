@@ -1,5 +1,5 @@
 const INITIAL_PORT = 23456
-const TOTAL_PORTS = 200
+const TOTAL_PORTS = 2000
 
 const shuffleArray = (array: any[]) => {
   for (let i = array.length - 1; i > 0; i -= 1) {

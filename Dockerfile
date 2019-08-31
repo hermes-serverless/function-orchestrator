@@ -21,6 +21,8 @@ FROM common as development
 
 ENV NODE_ENV=development
 
+RUN apk add --no-cache bash
+
 RUN yarn && yarn cache clean
 
 COPY . .
@@ -29,6 +31,17 @@ RUN yarn tsc
 
 CMD [ "yarn", "nodemon" ]
 
+# ================ TEST ================
+
+FROM common as testing
+
+ENV NODE_ENV=development
+
+RUN apk add --no-cache bash python curl git
+
+RUN yarn && yarn cache clean
+
+COPY . .
 
 # ================ PRODUCTION ================
 

@@ -1,5 +1,6 @@
 import { RunData } from '@hermes-serverless/api-types-db-manager/run'
 import { RunStatus } from '@hermes-serverless/api-types-function-watcher'
+import { Waiter } from '@hermes-serverless/custom-promises'
 import { createFsReadStream, createFsWriteStream } from '@hermes-serverless/fs-utils'
 import { Request, Response } from 'express'
 import fs from 'fs'
@@ -29,9 +30,14 @@ export class Run {
 
   private finishedExecuting: boolean
   private done: Promise<any>
+  private allFinishedWaiter: Waiter<any>
   private finishedTransferingResult: boolean
 
   private watcherResponsible: Watcher
+
+  constructor() {
+    this.allFinishedWaiter = new Waiter()
+  }
 
   get runID() {
     return this.id
@@ -39,6 +45,10 @@ export class Run {
 
   get allFinished() {
     return this.finishedExecuting && this.finishedTransferingResult
+  }
+
+  get allFinishedPromise() {
+    return this.allFinishedWaiter.finish()
   }
 
   public resultOutputPath = () => {
@@ -115,13 +125,14 @@ export class Run {
 
   public startRun = async (req: Request, res: Response, token: string, runType: 'async' | 'sync') => {
     try {
-      Logger.info(this.addName(`Got function`))
       const runRequest = await this.createRunRequest(token)
+      Logger.info(this.addName(`Got function`))
       this.watcherResponsible = await WatchersManager.getAvailableWatcher(runRequest)
       Logger.info(this.addName(`Got watcher`))
       this.done = this.watcherResponsible.run(req, res, this.data.id, runType)
       this.done.then(
         () => {
+          Logger.info(this.addName('Finished executing, start transfer'))
           this.finishedExecuting = true
           this.transferResult()
         },
@@ -152,6 +163,7 @@ export class Run {
     fs.writeFileSync(this.resultInfoPath(), JSON.stringify(status))
     this.finishedExecuting = true
     this.finishedTransferingResult = true
+    this.allFinishedWaiter.reject(err)
   }
 
   private transferResult = async () => {
@@ -172,9 +184,12 @@ export class Run {
       await promisifiedPipeline([resultOutput, resultOutputFile])
 
       this.finishedTransferingResult = true
+      this.allFinishedWaiter.resolve()
       Logger.info(this.addName(`End transfer result`))
       this.watcherResponsible.deleteRunData(this.id)
+      this.watcherResponsible.shutdown()
     } catch (err) {
+      this.allFinishedWaiter.reject(err)
       Logger.error(this.addName(`Error transfering result`), err)
     }
   }

@@ -1,6 +1,8 @@
 import { NextFunction, Response } from 'express'
 import { AuthenticatedReq } from '../../typings'
 import { RunsManager } from './../../resources/RunsManager/index'
+import R from 'ramda'
+import { Logger } from '../../utils/Logger'
 
 export const newRunHandler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
   try {
@@ -31,9 +33,10 @@ export const runStatusHandler = async (req: AuthenticatedReq, res: Response, nex
   try {
     if (req.method === 'GET') {
       const run = await RunsManager.getRun(req.auth.user, req.params.runId, req.auth.token)
-      const status = await run.getStatus()
-      res.status(200)
-      status.pipe(res)
+      const which = R.toPairs(req.query).map(el => el[1]) as string[]
+      Logger.info('Which', which)
+      const status = await run.getStatus(which)
+      res.status(200).send(status)
     } else {
       res.status(400).send('This route only accepts GET requests')
     }

@@ -6,8 +6,6 @@ import { Logger } from '../../../utils/Logger'
 import { sleep } from '../utils'
 
 Logger.enabled = false
-const RedisWrapper: any = require('../../../resources/RedisWrapper').RedisWrapper
-const DockerContainer: any = require('../../../resources/DockerInterface/DockerContainer').DockerContainer
 
 jest.mock('../../../resources/DockerInterface/DockerContainer', () => {
   return {
@@ -36,12 +34,16 @@ jest.mock('../../../utils/ResettableTimer', () => {
   }
 })
 
+const RedisWrapper: any = require('../../../resources/RedisWrapper').RedisWrapper
+const DockerContainer: any = require('../../../resources/DockerInterface/DockerContainer').DockerContainer
+
 const mockWatcher = (w: any) => {
   w.datasource = {
     deleteRun: jest.fn().mockResolvedValue('deleteRun'),
     getRunStatus: jest.fn().mockResolvedValue('getRunStatus'),
     getResultInfo: jest.fn().mockResolvedValue('getResultInfo'),
     getResultOutput: jest.fn().mockResolvedValue('getResultOutput'),
+    shutdown: jest.fn().mockResolvedValue('shutdown'),
   }
   w.baseURL = 'http://localhost:23004/'
   return w
@@ -112,6 +114,23 @@ describe('Constructor', () => {
       network: 'hermes',
       envVariables: [`REDIS_CHANNEL=watcher-1_${w.id}`],
     })
+  })
+
+  test('DockerContainer arguments are correct when network is defined by process.env.HERMES_NETWORK', () => {
+    process.env.HERMES_NETWORK = 'hermes-test'
+    const onShutdown = jest.fn()
+    const w: any = new Watcher({ onShutdown, imageName: 'someDockerImage', gpuCapable: false, functionID: '1' })
+    expect(DockerContainer).toBeCalledTimes(1)
+    expect(DockerContainer).toBeCalledWith(w.id, {
+      imageName: 'someDockerImage',
+      gpuCapable: false,
+      port: 3000,
+      dnsName: `watcher-1_${w.id}`,
+      detach: true,
+      network: 'hermes-test',
+      envVariables: [`REDIS_CHANNEL=watcher-1_${w.id}`],
+    })
+    delete process.env.HERMES_NETWORK
   })
 
   test('BaseURL is correct', () => {
@@ -277,6 +296,20 @@ describe('Run', () => {
 
       http.request(`http://localhost:${port}`, () => {}).end()
       await sourceWaiter.finish()
+    })
+
+    test('On shutdown the timer is stopped', async () => {
+      const onShutdown = jest.fn()
+      const w: any = mockWatcher(
+        new Watcher({ onShutdown, imageName: 'someDockerImage', gpuCapable: false, functionID: '1' })
+      )
+      const startCalls = w.timer.start.mock.calls.length
+      const stopCalls = w.timer.stop.mock.calls.length
+      w.canShutdown = true
+      await expect(w.shutdown()).resolves.toBe('shutdown')
+      expect(onShutdown).toBeCalledTimes(1)
+      expect(w.timer.stop).toBeCalledTimes(stopCalls + 1)
+      expect(w.timer.start).toBeCalledTimes(startCalls)
     })
   })
 })

@@ -56,7 +56,7 @@ userRouter.all('/:username/function-runs/:functionOwner/:functionName/:functionV
 
 userRouter.all('/:username/run/:functionOwner/:functionName/:functionVersion', [newRunHandler])
 userRouter.all('/:username/run/:runId/status', [runStatusHandler])
-userRouter.all('/:username/run/:runId/result/info', [runResultInfoHandler])
-userRouter.all('/:username/run/:runId/result/output', [runResultOutputHandler])
+userRouter.all('/:username/run/:runId/result-info', [runResultInfoHandler])
+userRouter.all('/:username/run/:runId/result-output', [runResultOutputHandler])
 
 export { userRouter }

@@ -4,7 +4,11 @@
   "scripts": {
     "start": "yarn build && node --trace-warnings build/index.js",
     "start:prod": "node index.js",
-    "test": "jest --logHeapUsage",
+    "test": "yarn unit-test && yarn integration-test-watcher",
+    "unit-test": "jest --logHeapUsage",
+    "integration-test-watcher": "./testUtils/integration-test-watcher.sh",
+    "inside-container/integration-test-watcher": "jest -c jest-integration-test.config.js --logHeapUsage",
+    "inside-container/watch-integration-test-watcher": "jest --watch -c jest-integration-test.config.js --logHeapUsage",
     "build": "rm -rf build && yarn tsc",
     "prepare": "yarn build",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
@@ -37,7 +41,8 @@
     "ramda": "^0.26.1",
     "redis": "^2.8.0",
     "signal-exit": "^3.0.2",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "wtfnode": "^0.8.0"
   },
   "devDependencies": {
     "@hermes-serverless/api-types-db-manager": "^0.0.2",
@@ -50,9 +55,14 @@
     "@types/node": "^12.6.9",
     "@types/ramda": "^0.26.8",
     "@types/redis": "^2.8.12",
+    "@types/supertest": "^2.0.8",
+    "folder-hash": "^3.2.0",
+    "get-port": "^5.0.0",
+    "get-stream": "^5.1.0",
     "jest": "^24.7.1",
     "nodemon": "^1.19.0",
     "prettier": "^1.17.0",
+    "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",

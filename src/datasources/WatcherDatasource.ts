@@ -20,9 +20,12 @@ export class WatcherDatasource {
 
   public async getRunStatus(runID: string, additionalFields?: string[]): Promise<RunStatus> {
     try {
-      const res = await this.axios.get(`/run/${runID}?` + queryString.encode({ ...(additionalFields || []) }))
+      const url = `/run/${runID}/status?` + queryString.encode({ ...(additionalFields || []) })
+      Logger.info('URL', { url })
+      const res = await this.axios.get(url)
       return res.data
     } catch (errResponse) {
+      Logger.error(this.addName(`${errResponse.config.method} - ${errResponse.config.url}`), errResponse)
       const possibleErrors = [...commonErrors]
       errorCheck(errResponse, possibleErrors)
     }
@@ -30,7 +33,7 @@ export class WatcherDatasource {
 
   public async deleteRun(runID: string): Promise<DeletedRun> {
     try {
-      const res = await this.axios.delete(`/run/${runID}`)
+      const res = await this.axios.delete(`/run/${runID}/delete`)
       return res.data
     } catch (errResponse) {
       const possibleErrors = [...commonErrors]
@@ -64,7 +67,11 @@ export class WatcherDatasource {
     try {
       await this.axios.get(`/shutdown`)
     } catch (errResponse) {
-      Logger.info(`[WatcherDatasource ${this.watcherName}] Shutdown error\n`, errResponse)
+      Logger.info(this.addName(`Shutdown error\n`), errResponse)
     }
+  }
+
+  public addName(msg: string) {
+    return `[WatcherDatasource ${this.watcherName}] ${msg}`
   }
 }
