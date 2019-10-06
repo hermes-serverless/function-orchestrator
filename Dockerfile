@@ -1,6 +1,6 @@
 # ================ COMMON ================
 
-FROM docker:18.09 as common 
+FROM docker:19.03 as common 
 
 RUN apk add --no-cache yarn nodejs
 

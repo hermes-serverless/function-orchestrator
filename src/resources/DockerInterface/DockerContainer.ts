@@ -26,7 +26,7 @@ export class DockerContainer {
     const { imageName, gpuCapable, detach, port, network, envVariables, dnsName } = this.options
 
     let args = ['run']
-    if (gpuCapable) args.push('--runtime=nvidia')
+    if (gpuCapable) args = args.concat(['--gpus', 'all'])
     if (port) args = args.concat([`-e`, `PORT=${port}`])
     if (dnsName) args.push(`--name=${dnsName}`)
     if (network) args.push(`--network=${network}`)
