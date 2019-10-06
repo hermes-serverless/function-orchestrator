@@ -4,14 +4,7 @@ import { AuthenticatedReq } from '../../typings'
 import { HermesFunctionProto } from './../../typings.d'
 import { checkifBodyIsValid, pickKeys } from './utils'
 
-const requiredAttrs = [
-  'functionName',
-  'language',
-  'gpuCapable',
-  'scope',
-  'imageName',
-  'functionVersion',
-]
+const requiredAttrs = ['functionName', 'language', 'gpuCapable', 'scope', 'imageName', 'functionVersion']
 
 export class BaseFunctionHandler {
   public static handler = async (req: AuthenticatedReq, res: Response, next: NextFunction) => {
@@ -38,20 +31,12 @@ export class BaseFunctionHandler {
 
   public get = () => {
     const { functionName, functionVersion } = this.req.params
-    return FunctionDatasource.getFunction(
-      this.req.auth.user,
-      { functionName, functionVersion },
-      this.req.auth.token
-    )
+    return FunctionDatasource.getFunction(this.req.auth.user, { functionName, functionVersion }, this.req.auth.token)
   }
 
   public del = () => {
     const { functionName, functionVersion } = this.req.params
-    return FunctionDatasource.deleteFunction(
-      this.req.auth.user,
-      { functionName, functionVersion },
-      this.req.auth.token
-    )
+    return FunctionDatasource.deleteFunction(this.req.auth.user, { functionName, functionVersion }, this.req.auth.token)
   }
 }
 

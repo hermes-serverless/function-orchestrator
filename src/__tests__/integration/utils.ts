@@ -52,9 +52,9 @@ export const createFunctionData = ({
   return {
     functionName,
     functionVersion,
+    gpuCapable,
     id: 'function-id',
     ownerId: 'functionOwner',
-    gpuCapable,
     scope: 'PUBLIC',
     imageName: createImageName({ functionName, functionVersion }),
   }
