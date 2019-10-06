@@ -1,3 +1,3 @@
 set -euo pipefail
-docker build --target=production -t hermeshub/conductor:latest .
-docker push hermeshub/conductor
+docker build --target=production -t hermeshub/function-orchestrator:latest .
+docker push hermeshub/function-orchestrator

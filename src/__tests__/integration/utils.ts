@@ -12,7 +12,7 @@ interface FunctionBasicData {
 }
 
 export const createImageName = ({ functionName, functionVersion }: any) => {
-  return `conductor-test/watcher-${functionName}-${functionVersion}`
+  return `function-orchestrator-test/watcher-${functionName}-${functionVersion}`
 }
 
 export const stopWatchers = (fnData: any) => {

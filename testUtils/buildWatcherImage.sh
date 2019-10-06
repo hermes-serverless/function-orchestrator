@@ -34,25 +34,25 @@ FN_BUILDER_DOCKERFILE=$( curl https://raw.githubusercontent.com/hermes-tcc/proje
 
 echo "======== BUILDING FUNCTION ========"
 echo "$FN_BUILDER_DOCKERFILE" | \
-  docker build  -t conductor-test/build-$FN_NAME-$FN_VERSION \
+  docker build  -t function-orchestrator-test/build-$FN_NAME-$FN_VERSION \
                 -f - \
                 $1
 echo ""
 echo ""
 
 echo "======== BUILDING WATCHER ========"
-docker build  -t conductor-test/watcher-$FN_NAME-$FN_VERSION:latest \
+docker build  -t function-orchestrator-test/watcher-$FN_NAME-$FN_VERSION:latest \
               --target="$NODE_ENV" \
-              --build-arg FN_IMAGE=conductor-test/build-$FN_NAME-$FN_VERSION \
+              --build-arg FN_IMAGE=function-orchestrator-test/build-$FN_NAME-$FN_VERSION \
               --build-arg FN_LANGUAGE=$LANGUAGE \
               github.com/hermes-tcc/function-watcher
 echo ""
 echo ""
 
-docker images conductor-test/watcher-$FN_NAME-$FN_VERSION:latest
+docker images function-orchestrator-test/watcher-$FN_NAME-$FN_VERSION:latest
 echo ""
 echo ""
 
-docker history conductor-test/watcher-$FN_NAME-$FN_VERSION:latest
+docker history function-orchestrator-test/watcher-$FN_NAME-$FN_VERSION:latest
 echo ""
 echo ""

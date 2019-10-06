@@ -38,7 +38,7 @@ if [ "$WATCH" == "true" ]; then
   YARN_COMMAND="yarn inside-container/watch-integration-test-watcher"
 fi
 
-docker-compose $DOCKER_COMPOSE_OPTS run --rm conductor $YARN_COMMAND
+docker-compose $DOCKER_COMPOSE_OPTS run --rm function-orchestrator $YARN_COMMAND
 
 printf "\n\n"
 docker container ls
