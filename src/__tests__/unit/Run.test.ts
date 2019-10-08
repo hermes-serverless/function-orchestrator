@@ -1,5 +1,5 @@
-import { FunctionData, FunctionGetObj } from '@hermes-serverless/api-types-db-manager/function'
-import { RunData, RunGetObj, RunPostObj } from '@hermes-serverless/api-types-db-manager/run'
+import { FunctionData, FunctionGetObj } from '@hermes-serverless/api-types-function-registry-api/function'
+import { RunData, RunGetObj, RunPostObj } from '@hermes-serverless/api-types-function-registry-api/run'
 import { Waiter } from '@hermes-serverless/custom-promises'
 import execa from 'execa'
 import fs from 'fs'

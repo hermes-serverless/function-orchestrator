@@ -3,7 +3,7 @@ import {
   FunctionGetObj,
   FunctionPostObj,
   FunctionPutObj,
-} from '@hermes-serverless/api-types-db-manager/function'
+} from '@hermes-serverless/api-types-function-registry-api/function'
 import axios, { AxiosInstance } from 'axios'
 import { HermesFunctionProto, User } from '../typings'
 import { createErrorToCheck, errorCheck, SimpleError, ValidationError } from './Errors'
@@ -32,7 +32,7 @@ const createUrl = (username: string, partialFunctionID: PartialFunctionID) => {
 
 export class FunctionDatasource {
   private static axios: AxiosInstance = axios.create({
-    baseURL: 'http://db-manager:8080/user',
+    baseURL: 'http://function-registry-api:8080/user',
     timeout: 1000,
   })
 

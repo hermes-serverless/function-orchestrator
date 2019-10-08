@@ -25,7 +25,7 @@ const addName = (msg: string) => {
 }
 export class RedisWrapper {
   public static client = redis.createClient({
-    host: 'event-broker',
+    host: 'function-lifecycle-broker',
     port: 6379,
   })
 

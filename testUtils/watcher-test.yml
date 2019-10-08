@@ -1,6 +1,6 @@
 version: '3.6'
 services:
-  event-broker:
+  function-lifecycle-broker:
     image: redis
     ports:
       - '6379'
@@ -22,7 +22,7 @@ services:
       - ./tmp/results:/app/results
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - event-broker
+      - function-lifecycle-broker
 
 networks:
   hermes-test:

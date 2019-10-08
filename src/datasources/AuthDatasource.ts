@@ -12,7 +12,7 @@ import {
 
 export class AuthDatasource {
   private static axios: AxiosInstance = axios.create({
-    baseURL: 'http://db-manager:8080/auth',
+    baseURL: 'http://function-registry-api:8080/auth',
     timeout: 1000,
   })
 

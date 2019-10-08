@@ -1,4 +1,4 @@
-import { RunData } from '@hermes-serverless/api-types-db-manager/run'
+import { RunData } from '@hermes-serverless/api-types-function-registry-api/run'
 import { RunStatus } from '@hermes-serverless/api-types-function-watcher'
 import { Waiter } from '@hermes-serverless/custom-promises'
 import { createFsReadStream, createFsWriteStream } from '@hermes-serverless/fs-utils'

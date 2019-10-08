@@ -1,4 +1,4 @@
-import { RunData, RunPostObj, RunGetObj, RunPutObj } from '@hermes-serverless/api-types-db-manager/run'
+import { RunData, RunPostObj, RunGetObj, RunPutObj } from '@hermes-serverless/api-types-function-registry-api/run'
 
 export const mockRunDatasource = () => {
   jest.doMock('../../datasources/RunDatasource.ts', () => {

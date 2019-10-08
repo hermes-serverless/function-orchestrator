@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import { RunData } from '@hermes-serverless/api-types-db-manager/run'
-import { FunctionData } from '@hermes-serverless/api-types-db-manager/function'
+import { RunData } from '@hermes-serverless/api-types-function-registry-api/run'
+import { FunctionData } from '@hermes-serverless/api-types-function-registry-api/function'
 import execa from 'execa'
 
 interface FunctionBasicData {

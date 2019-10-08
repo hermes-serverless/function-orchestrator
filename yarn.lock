@@ -158,10 +158,10 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@hermes-serverless/api-types-db-manager@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@hermes-serverless/api-types-db-manager/-/api-types-db-manager-0.0.2.tgz#7041f9e4d9cc14b0e1d527964c8d2c9d61ea4278"
-  integrity sha512-AS0cC4q5NEV1oZ6lI4jcLjRW40Eu8W9O3WyTVroTXbDJuLsejrTLxv9esBUsM+7u0/rYqZaMZCKNsszu7bmdCw==
+"@hermes-serverless/api-types-function-registry-api@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@hermes-serverless/api-types-function-registry-api/-/api-types-function-registry-api-0.0.3.tgz#f875d336cbaa2f99916853bffa9d26c3a06bd88a"
+  integrity sha512-lbmKx6vT+2buBmtaxjHfR2qA6DXOmSK1ZdB49yLDoPchlwVNoojFXKXtw8R91t/6JqNoeuPqVgEizLQyaOFQ4g==
   dependencies:
     "@types/node" "^12.6.9"
 

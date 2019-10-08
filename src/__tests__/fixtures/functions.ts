@@ -1,4 +1,4 @@
-import { FunctionData } from '@hermes-serverless/api-types-db-manager/function'
+import { FunctionData } from '@hermes-serverless/api-types-function-registry-api/function'
 
 export const functionSamples: Record<string, FunctionData> = {
   someFunction: {

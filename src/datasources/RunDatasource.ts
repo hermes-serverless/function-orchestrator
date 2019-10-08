@@ -1,4 +1,4 @@
-import { RunDeleteObj, RunGetObj, RunPostObj, RunPutObj } from '@hermes-serverless/api-types-db-manager/run'
+import { RunDeleteObj, RunGetObj, RunPostObj, RunPutObj } from '@hermes-serverless/api-types-function-registry-api/run'
 import axios, { AxiosInstance } from 'axios'
 import { User } from '../typings'
 import { RunProto } from '../typings.d'
@@ -33,7 +33,7 @@ const createRunsUrl = (username: string, { id }: { id?: string }) => {
 
 export class RunDatasource {
   private static axios: AxiosInstance = axios.create({
-    baseURL: 'http://db-manager:8080/user',
+    baseURL: 'http://function-registry-api:8080/user',
     timeout: 1000,
   })
 

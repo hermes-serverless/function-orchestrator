@@ -1,4 +1,4 @@
-import { RunData } from '@hermes-serverless/api-types-db-manager/run'
+import { RunData } from '@hermes-serverless/api-types-function-registry-api/run'
 
 export const runSamples: Record<string, RunData> = {
   finishedRun: {

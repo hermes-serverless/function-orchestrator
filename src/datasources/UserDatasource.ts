@@ -7,7 +7,7 @@ const commonErrors = [createErrorToCheck('NoSuchUser', new SimpleError('NoSuchUs
 
 export class UserDatasource {
   private static axios: AxiosInstance = axios.create({
-    baseURL: 'http://db-manager:8080/user',
+    baseURL: 'http://function-registry-api:8080/user',
     timeout: 1000,
   })
 

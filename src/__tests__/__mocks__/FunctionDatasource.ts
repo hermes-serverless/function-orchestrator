@@ -1,4 +1,4 @@
-import { FunctionData, FunctionGetObj } from '@hermes-serverless/api-types-db-manager/function'
+import { FunctionData, FunctionGetObj } from '@hermes-serverless/api-types-function-registry-api/function'
 
 export const mockFunctionDatasource = () => {
   jest.doMock('../../datasources/FunctionDatasource.ts', () => {
