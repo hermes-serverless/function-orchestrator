@@ -11,6 +11,7 @@ import { Run } from '../../resources/RunsManager/Run'
 import { Logger } from '../../utils/Logger'
 import { functionSamples } from '../fixtures/functions'
 import { runSamples } from '../fixtures/runs'
+import { SimplifiedUser } from '@hermes-serverless/api-types-function-registry-api/user'
 
 Logger.enabled = false
 const tmpPath = path.join(os.tmpdir(), 'run-tests')
@@ -61,14 +62,19 @@ const WatchersManager = require('../../resources/RunsManager/WatchersManager').W
 >
 
 const prepareRunToCreate = (sample: RunData) => {
-  const user = { id: sample.userId, username: 'usernameWhoExecuted' }
+  const user: SimplifiedUser = {
+    id: sample.userId,
+    username: 'usernameWhoExecuted',
+    createdAt: 'mock',
+    updatedAt: 'mock',
+  }
   const functionID: FunctionIDWithOwner = {
     functionName: sample.function.functionName,
     functionVersion: sample.function.functionVersion,
     functionOwner: sample.function.owner.username,
   }
 
-  const postMock: RunPostObj = { createdRun: [sample] }
+  const postMock: RunPostObj = { user, createdRun: [sample] }
   RunDatasource.createFunctionRun.mockResolvedValue(postMock)
   return { user, functionID }
 }
@@ -108,10 +114,10 @@ beforeEach(() => {
 
 describe('init', () => {
   test('Using existing Run', async () => {
-    const user = { id: 'userWhoExecuted', username: 'usernameWhoExecuted' }
+    const user = { id: 'userWhoExecuted', username: 'usernameWhoExecuted', createdAt: 'mock', updatedAt: 'mock' }
     const token = 'token123'
     const r: any = new Run()
-    const getMock: RunGetObj = { runs: [runSamples.finishedRun] }
+    const getMock: RunGetObj = { user, runs: [runSamples.finishedRun] }
     RunDatasource.getRun.mockResolvedValue(getMock)
     await r.init({ user, id: 'finishedRunID' }, token)
     expect(RunDatasource.getRun).toBeCalledTimes(1)
@@ -157,7 +163,10 @@ describe('createRunRequest', () => {
     const token = 'token123'
     const r: any = new Run()
     const { user, functionID } = prepareRunToCreate(runSamples.createdRun)
-    const functionGetMock: FunctionGetObj = { functions: [functionSamples.someFunction] }
+    const functionGetMock: FunctionGetObj = {
+      user,
+      functions: [{ owner: { username: user.username }, ...functionSamples.someFunction }],
+    }
     FunctionDatasource.getFunction.mockResolvedValue(functionGetMock)
     await r.init({ user, ...functionID }, token)
     await expect(r.createRunRequest(token)).resolves.toEqual({

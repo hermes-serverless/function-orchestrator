@@ -1,12 +1,11 @@
 import { RunData } from '@hermes-serverless/api-types-function-registry-api/run'
 
-export const runSamples: Record<string, RunData> = {
+export const runSamples: Record<string, any> = {
   finishedRun: {
     id: 'finishedRunID',
     userId: 'userWhoExecuted',
     status: 'success',
     startTime: new Date(),
-    outputPath: '',
     endTime: new Date(),
     watcherID: 'Useless',
     function: {
@@ -24,7 +23,6 @@ export const runSamples: Record<string, RunData> = {
     userId: 'userWhoExecuted',
     status: 'success',
     startTime: new Date(),
-    outputPath: '',
     endTime: new Date(),
     watcherID: 'Useless',
     function: {
